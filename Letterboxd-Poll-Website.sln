@@ -9,7 +9,10 @@ Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "letterboxd-poll-website.cli
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CBAF2888-DF12-4495-948D-FC1FA35F93A6}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
 	EndProjectSection
 EndProject
 Global
