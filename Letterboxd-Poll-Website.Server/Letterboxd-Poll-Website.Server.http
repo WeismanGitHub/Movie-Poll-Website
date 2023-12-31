@@ -1,6 +1,0 @@
-@Letterboxd_Poll_Website.Server_HostAddress = http://localhost:5038
-
-GET {{Letterboxd_Poll_Website.Server_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
