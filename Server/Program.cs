@@ -1,20 +1,16 @@
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services
-    .AddControllers()
-    .AddEndpointsApiExplorer()
-    .AddSwaggerGen();
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
-var settings = config.GetSection("Settings").Get<Settings>();
 var app = builder.Build();
 
 app
     .UseSwagger()
     .UseSwaggerUI()
-    .UseSwaggerGen()
-    .UseHttpsRedirection()
-    .UseAuthorization()
-    .MapControllers()
+	.UseHttpsRedirection()
+	.UseAuthorization()
 	.UseDefaultFiles()
     .UseResponseCaching()
     .UseStaticFiles();
