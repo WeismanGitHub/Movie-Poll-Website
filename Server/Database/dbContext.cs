@@ -1,10 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System;
 
 public class LbPollContext : DbContext {
     public DbSet<Poll> Polls { get; set; }
-    public DbSet<User> Users { get; set; }
 
     public string DbPath { get; }
 
