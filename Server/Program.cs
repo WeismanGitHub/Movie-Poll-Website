@@ -7,14 +7,13 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 app.MapControllers();
-app
-    .UseSwagger()
-    .UseSwaggerUI()
-	.UseHttpsRedirection()
-	.UseAuthorization()
-	.UseDefaultFiles()
-    .UseResponseCaching()
-    .UseStaticFiles();
-
+app.UseSwagger();
+app.UseSwaggerUI();
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.UseDefaultFiles();
+app.UseResponseCaching();
+app.UseStaticFiles();
 app.MapFallbackToFile("/index.html");
+
 app.Run();
