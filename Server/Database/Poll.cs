@@ -11,13 +11,13 @@ public class Vote {
 
 public class Poll {
 	[Key, Required]
-	public Guid Id { get; } = Guid.NewGuid();
+	public Guid Id { get; set; } = Guid.NewGuid();
 	[Required, MaxLength(500), MinLength(1)]
 	public required string Question { get; set; }
 	[Required]
 	public List<Vote> Votes { get; } = new();
-	[Required]
 	public string? ServerId { get; set; }
 	public DateTime CreatedAt { get; } = DateTime.Now;
 	public DateTime? Expiration { get; set; }
+	public string? ListId { get; set; }
 }
