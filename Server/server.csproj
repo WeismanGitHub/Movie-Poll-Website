@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\letterboxd-poll-website.client\letterboxd-poll-website.client.esproj">
+    <ProjectReference Include="..\movie-poll-website.client\movie-poll-website.client.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>

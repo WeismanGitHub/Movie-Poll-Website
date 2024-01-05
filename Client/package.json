@@ -1,5 +1,5 @@
 {
-  "name": "letterboxd-poll-website.client",
+  "name": "movie-poll-website.client",
   "private": true,
   "version": "0.0.0",
   "type": "module",
