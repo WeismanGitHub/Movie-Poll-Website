@@ -23,9 +23,9 @@ public class PollsController : ControllerBase {
 			return BadRequest("Expiration must be greater than the current time and less than 6 months.");
 		}
 
-		if () {
+		//if () {
 
-		}
+		//}
 
 		var poll = new Poll {
 			Question = input.Question,
