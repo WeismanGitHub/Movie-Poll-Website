@@ -9,7 +9,7 @@ public class LbPollContext : DbContext {
     public LbPollContext() {
         var folder = Environment.SpecialFolder.LocalApplicationData;
         var path = Environment.GetFolderPath(folder);
-        DbPath = Path.Join(path, "lettreboxd-poll.db");
+        DbPath = Path.Join(path, "movie-poll.db");
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options) => options.UseSqlite($"Data Source={DbPath}");
