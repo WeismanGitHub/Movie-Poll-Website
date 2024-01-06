@@ -9,6 +9,9 @@ public class PollsController : ControllerBase {
 	public class CreatePollDTO {
 		public required string Question { get; set; }
 		public DateTime? Expiration { get; set; }
+		public string? ServerId { get; set; }
+		public string? AuthCode { get; set; }
+		public required List<string> ItemIds {  get; set; }
 	}
 
 	[HttpPost(Name = "CreatePoll")]
@@ -19,22 +22,33 @@ public class PollsController : ControllerBase {
 		using var db = new LbPollContext();
 		var client = new HttpClient();
 
-		if (input.Expiration > DateTime.Now.AddMonths(6) || input.Expiration <= DateTime.Now) {
-			return BadRequest("Expiration must be greater than the current time and less than 6 months.");
+		if (input.Expiration != null && input.Expiration <= DateTime.Now) {
+			return BadRequest("Expiration must be greater than the current time.");
+		} else if (input.ItemIds.Count < 2 || input.ItemIds.Count > 50) {
+			return BadRequest("Selected items must be between 2 and 50.");
 		}
 
-		//if () {
+		input.ItemIds.ForEach(itemId => {
+			Console.WriteLine(itemId);
+			// check that they're valid ids
+		});
 
-		//}
+		if (input.ServerId != null && input.AuthCode == null) {
+			return BadRequest("You must be logged in to restrict a poll to a server.");
+		} else if (input.ServerId != null && input.AuthCode != null) {
+
+		}
 
 		var poll = new Poll {
 			Question = input.Question,
 			Expiration = input.Expiration,
+			ServerId = input.ServerId,
+			ItemIds = input.ItemIds,
 		};
 
 		db.Add(poll);
 		await db.SaveChangesAsync();
 
-		return Created(string.Empty, poll.Id);
+		return Created($"/polls/{poll.Id}", poll.Id);
     }
 }
