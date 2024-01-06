@@ -6,7 +6,7 @@ public class Vote {
 	[Key, Required]
 	public required string UserId { get; set; }
 	[Required]
-	public string ChoiceId { get; set; }
+	public string ItemId { get; set; }
 }
 
 public class Poll {
@@ -19,5 +19,6 @@ public class Poll {
 	public string? ServerId { get; set; }
 	public DateTime CreatedAt { get; } = DateTime.Now;
 	public DateTime? Expiration { get; set; }
-	public string? ListId { get; set; }
+	[Required, MinLength(2), MaxLength(50)]
+	public List<string> ItemIds { get; set; } = new();
 }
