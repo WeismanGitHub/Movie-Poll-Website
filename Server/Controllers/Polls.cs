@@ -56,9 +56,10 @@ public class PollsController : ControllerBase {
 
 	public class PollResponse {
 		public required string Question { get; set; }
-		public required List<string> Votes {  get; set; }
+		public required IEnumerable<string> Votes {  get; set; }
 		public required List<string> ItemIds {  get; set; }
 		public required DateTime CreatedAt { get; set; }
+		public required bool ServerRestricted { get; set; }
 		public DateTime? Expiration { get; set; }
 	}
 
@@ -77,15 +78,14 @@ public class PollsController : ControllerBase {
 		if (poll == null) {
 			return NotFound("Could not find poll.");
 		}
-
-		if (poll.ServerId != null) {
-			var authCode = Request.Headers.Authorization;
-			Console.WriteLine(authCode);
-		}
-
-		Console.WriteLine(poll.Question);
+		
 		return Ok(new PollResponse() {
-			
+			Question = poll.Question,
+			Votes = poll.Votes.Select(vote => vote.ItemId),
+			Expiration = poll.Expiration,
+			ItemIds = poll.ItemIds,
+			ServerRestricted = poll.ServerId != null,
+			CreatedAt = poll.CreatedAt,
 		});
 	}
 
