@@ -54,9 +54,19 @@ public class PollsController : ControllerBase {
 		return Created($"/polls/{poll.Id}", poll.Id);
     }
 
+	public class PollResponse {
+		public required string Question { get; set; }
+		public required List<string> Votes {  get; set; }
+		public required List<string> ItemIds {  get; set; }
+		public required DateTime CreatedAt { get; set; }
+		public DateTime? Expiration { get; set; }
+	}
+
 	[HttpGet(Name = "GetPoll")]
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+	[ProducesResponseType(StatusCodes.Status403Forbidden)]
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 	public async Task<IActionResult> GetPoll(Guid id) {
 		using var db = new LbPollContext();
@@ -74,6 +84,36 @@ public class PollsController : ControllerBase {
 		}
 
 		Console.WriteLine(poll.Question);
-		return Ok(poll);
+		return Ok(new PollResponse() {
+			
+		});
+	}
+
+	[HttpPost(Name = "Vote")]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+	[ProducesResponseType(StatusCodes.Status403Forbidden)]
+	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+	public async Task<IActionResult> Vote(Guid id) {
+		using var db = new LbPollContext();
+		var client = new HttpClient();
+
+		var poll = await db.FindAsync<Poll>(id);
+
+		if (poll == null) {
+			return NotFound("Could not find poll.");
+		}
+
+		if (poll.Expiration != null && poll.Expiration < DateTime.Now) {
+			return BadRequest("Poll has expired");
+		}
+
+		if (poll.ServerId != null) {
+			var authCode = Request.Headers.Authorization;
+			Console.WriteLine(authCode);
+		}
+
+		return Ok();
 	}
 }
