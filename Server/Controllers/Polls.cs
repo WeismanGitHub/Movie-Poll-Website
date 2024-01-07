@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Database;
 
@@ -7,10 +8,12 @@ namespace Movie_Poll_Website.Server.Controllers;
 [Route("api/polls")]
 public class PollsController : ControllerBase {
 	public class CreatePollDTO {
+		[Required, MaxLength(500), MinLength(1)]
 		public required string Question { get; set; }
 		public DateTime? Expiration { get; set; }
 		public string? ServerId { get; set; }
 		public string? AuthCode { get; set; }
+		[Required, MinLength(2), MaxLength(50)]
 		public required List<string> ItemIds {  get; set; }
 	}
 
@@ -28,15 +31,14 @@ public class PollsController : ControllerBase {
 			return BadRequest("Selected items must be between 2 and 50.");
 		}
 
-		input.ItemIds.ForEach(itemId => {
-			Console.WriteLine(itemId);
-			// check that they're valid ids
-		});
+		if (input.ItemIds.Any(itemId => itemId.Length > 30)) {
+			return BadRequest("Invalid Ids.");
+		}
 
 		if (input.ServerId != null && input.AuthCode == null) {
 			return BadRequest("You must be logged in to restrict a poll to a server.");
 		} else if (input.ServerId != null && input.AuthCode != null) {
-
+			// do the auth process
 		}
 
 		var poll = new Poll {
@@ -51,4 +53,27 @@ public class PollsController : ControllerBase {
 
 		return Created($"/polls/{poll.Id}", poll.Id);
     }
+
+	[HttpGet(Name = "GetPoll")]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+	public async Task<IActionResult> GetPoll(Guid id) {
+		using var db = new LbPollContext();
+		var client = new HttpClient();
+
+		var poll = await db.FindAsync<Poll>(id);
+
+		if (poll == null) {
+			return NotFound("Could not find poll.");
+		}
+
+		if (poll.ServerId != null) {
+			var authCode = Request.Headers.Authorization;
+			Console.WriteLine(authCode);
+		}
+
+		Console.WriteLine(poll.Question);
+		return Ok(poll);
+	}
 }
