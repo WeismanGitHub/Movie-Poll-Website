@@ -1,12 +1,19 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Database;
+using API;
 
 namespace Movie_Poll_Website.Server.Controllers;
 
 [ApiController]
 [Route("api/polls")]
 public class PollsController : ControllerBase {
+	private readonly Settings _settings;
+
+	public PollsController(Settings settings) {
+		_settings = settings;
+	}
+
 	public class CreatePollDTO {
 		[Required, MaxLength(500), MinLength(1)]
 		public required string Question { get; set; }
@@ -89,7 +96,7 @@ public class PollsController : ControllerBase {
 		});
 	}
 
-	[HttpPost(Name = "Vote")]
+	[HttpPost("Vote/{id}", Name = "Vote")]
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
