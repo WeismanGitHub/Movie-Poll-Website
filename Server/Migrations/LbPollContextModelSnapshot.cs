@@ -26,6 +26,9 @@ namespace server.Migrations
                     b.Property<DateTime?>("Expiration")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("GuildId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("ItemIds")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -34,9 +37,6 @@ namespace server.Migrations
                     b.Property<string>("Question")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ServerId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

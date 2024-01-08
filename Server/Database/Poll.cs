@@ -16,7 +16,7 @@ public class Poll {
 	public required string Question { get; set; }
 	[Required]
 	public List<Vote> Votes { get; } = new();
-	public string? ServerId { get; set; }
+	public string? GuildId { get; set; }
 	public DateTime CreatedAt { get; } = DateTime.Now;
 	public DateTime? Expiration { get; set; }
 	[Required, MinLength(2), MaxLength(50)]

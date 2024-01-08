@@ -34,7 +34,7 @@ namespace server.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("ServerId")
+                    b.Property<string>("GuildId")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

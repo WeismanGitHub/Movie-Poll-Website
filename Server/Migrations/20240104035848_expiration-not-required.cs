@@ -11,7 +11,7 @@ namespace server.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "ServerId",
+                name: "GuildId",
                 table: "Polls",
                 type: "TEXT",
                 nullable: true,
@@ -23,7 +23,7 @@ namespace server.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "ServerId",
+                name: "GuildId",
                 table: "Polls",
                 type: "TEXT",
                 nullable: false,

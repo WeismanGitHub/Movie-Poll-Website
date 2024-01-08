@@ -12,7 +12,7 @@ namespace server.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "ServerId",
+                name: "GuildId",
                 table: "Polls",
                 type: "TEXT",
                 nullable: false,
@@ -36,7 +36,7 @@ namespace server.Migrations
                 table: "Polls");
 
             migrationBuilder.AlterColumn<string>(
-                name: "ServerId",
+                name: "GuildId",
                 table: "Polls",
                 type: "TEXT",
                 nullable: true,
