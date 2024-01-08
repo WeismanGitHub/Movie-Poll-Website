@@ -104,15 +104,25 @@ public class PollsController : ControllerBase {
 		});
 	}
 
+	public class VoteDTO {
+		public required string AuthCode { get; set; }
+		public required string ItemId { get; set; }
+	}
+
 	[HttpPost("Vote/{id}", Name = "Vote")]
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	[ProducesResponseType(StatusCodes.Status403Forbidden)]
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-	public async Task<IActionResult> Vote(Guid id) {
+	public async Task<IActionResult> Vote(Guid id, VoteDTO vote) {
 		using var db = new LbPollContext();
+		var utils = new Utils(_settings);
 		var client = new HttpClient();
+
+		if (vote.AuthCode == null) {
+			return BadRequest("Missing auth code.");
+		}
 
 		var poll = await db.FindAsync<Poll>(id);
 
@@ -121,13 +131,23 @@ public class PollsController : ControllerBase {
 		}
 
 		if (poll.Expiration != null && poll.Expiration < DateTime.Now) {
-			return BadRequest("Poll has expired");
+			return BadRequest("Poll has expired.");
 		}
 
 		if (poll.GuildId != null) {
-			var authCode = Request.Headers.Authorization;
-			Console.WriteLine(authCode);
+			var guilds = await utils.GetGuilds(vote.AuthCode);
+
+			if (!guilds.Any(guild => guild.Id == poll.GuildId)) {
+				return BadRequest("This poll is restricted to a server that you aren't in.");
+			}
 		}
+
+		var user = await utils.GetUser(vote.AuthCode);
+
+		poll.Votes.Add(new() {
+			ItemId = vote.ItemId,
+			UserId = user.Id
+		});
 
 		return Ok();
 	}
