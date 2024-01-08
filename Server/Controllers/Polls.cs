@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Database;
+using server;
 using API;
 
 namespace Movie_Poll_Website.Server.Controllers;
@@ -18,7 +19,7 @@ public class PollsController : ControllerBase {
 		[Required, MaxLength(500), MinLength(1)]
 		public required string Question { get; set; }
 		public DateTime? Expiration { get; set; }
-		public string? ServerId { get; set; }
+		public string? GuildId { get; set; }
 		public string? AuthCode { get; set; }
 		[Required, MinLength(2), MaxLength(50)]
 		public required List<string> ItemIds {  get; set; }
@@ -42,16 +43,23 @@ public class PollsController : ControllerBase {
 			return BadRequest("Invalid Ids.");
 		}
 
-		if (input.ServerId != null && input.AuthCode == null) {
-			return BadRequest("You must be logged in to restrict a poll to a server.");
-		} else if (input.ServerId != null && input.AuthCode != null) {
-			// do the auth process
+		if (input.GuildId != null) {
+			if (input.AuthCode == null) {
+				return BadRequest("You must be logged in to restrict a poll to a server.");
+			}
+
+			var utils = new Utils(_settings);
+			var guilds = await utils.GetGuilds(input.AuthCode);
+
+			if (!guilds.Any(guild => guild.Id == input.GuildId)) {
+				return BadRequest("You must be in the server to restrict this poll.");
+			}
 		}
 
 		var poll = new Poll {
 			Question = input.Question,
 			Expiration = input.Expiration,
-			ServerId = input.ServerId,
+			GuildId = input.GuildId,
 			ItemIds = input.ItemIds,
 		};
 
@@ -91,7 +99,7 @@ public class PollsController : ControllerBase {
 			Votes = poll.Votes.Select(vote => vote.ItemId),
 			Expiration = poll.Expiration,
 			ItemIds = poll.ItemIds,
-			ServerRestricted = poll.ServerId != null,
+			ServerRestricted = poll.GuildId != null,
 			CreatedAt = poll.CreatedAt,
 		});
 	}
@@ -116,7 +124,7 @@ public class PollsController : ControllerBase {
 			return BadRequest("Poll has expired");
 		}
 
-		if (poll.ServerId != null) {
+		if (poll.GuildId != null) {
 			var authCode = Request.Headers.Authorization;
 			Console.WriteLine(authCode);
 		}
