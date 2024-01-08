@@ -10,8 +10,9 @@ public class Utils {
 	}
 
 	public class Guild {
-		public int Id;
+		public string Id;
 	}
+
 	public async Task<List<Guild>> GetGuilds(string authCode) {
 		Console.WriteLine(authCode, _settings);
 		//	const tokenResponseData = await request('https://discord.com/api/oauth2/token', {
@@ -40,6 +41,15 @@ public class Utils {
 		//	},
 		//});
 
+		return new();
+	}
+
+	public class User {
+		public string Id { get; set; }
+	}
+
+	public async Task<User> GetUser(string authCode) {
+		Console.WriteLine(authCode);
 		return new();
 	}
 }
