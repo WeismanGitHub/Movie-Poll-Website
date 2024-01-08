@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using server;
 using API;
 
 namespace Movie_Poll_Website.Server.Controllers;
@@ -16,8 +17,9 @@ public class SelfController : ControllerBase {
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 	public async Task<IActionResult> GetGuilds(string authCode) {
-		Console.WriteLine(authCode);
+		var utils = new Utils(_settings);
+		var guilds = utils.GetGuilds(authCode);
 
-		return Ok();
+		return Ok(guilds);
 	}
 }
