@@ -139,7 +139,8 @@ export default function CreatePoll() {
                                             name="restrictionToggle"
                                             onChange={() => {
                                                 if (!code) {
-                                                    navigate('/auth?redirect=create')
+                                                    localStorage.setItem('redirect', 'create')
+                                                    navigate('/auth')
                                                 }
                                                 
                                                 setFieldValue('restrictionToggle', !values.restrictionToggle);

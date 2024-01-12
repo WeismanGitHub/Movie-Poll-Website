@@ -16,20 +16,22 @@ export default function Auth() {
     const [searchParams] = useSearchParams();
     const randomString = generateState();
     const navigate = useNavigate();
-
+    
     useEffect(() => {
-        const redirect = searchParams.get('redirect');
         const state = searchParams.get('state');
         const code = searchParams.get('code');
+        const redirect = localStorage.getItem('redirect');
 
         if (!redirect) {
             navigate('/')
+            return;
         }
 
-        if (code && state && localStorage.getItem('auth-state') == atob(decodeURIComponent(state))) {
+        if (code && state && localStorage.getItem('auth-state') == atob(decodeURIComponent(state)) && redirect) {
             navigate(`/${redirect}?code=${code}`)
         } else {
             localStorage.setItem('auth-state', randomString);
+            localStorage.setItem('redirect', redirect);
         }
     }, []);
 
@@ -37,7 +39,7 @@ export default function Auth() {
         <>
             <a
                 className=""
-                href={process.env.REACT_APP_OAUTH_URL + `&state=${btoa(randomString)}`}
+                href={import.meta.env.VITE_OAUTH_URL + `&state=${btoa(randomString)}`}
             >
                 Authorize
             </a>
