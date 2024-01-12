@@ -1,4 +1,7 @@
-﻿using API;
+﻿using Microsoft.AspNetCore.Authentication;
+using System.Net.Http.Headers;
+using System.Text.Json;
+using API;
 
 namespace server;
 
@@ -10,36 +13,44 @@ public class Utils {
 	}
 
 	public class Guild {
-		public string Id;
+		public required string id;
+		public required string name;
+		public required string icon;
+		public required bool owner;
+		public required int permissions;
+		public required string permissions_new;
+		public required List<string> features;
 	}
 
 	public async Task<List<Guild>> GetGuilds(string authCode) {
 		var client = new HttpClient();
 		
-		var content = new Dictionary<string, string>() {
+		var reqBody = new Dictionary<string, string>() {
 			{ "client_id", _settings.Discord.Id },
 			{ "client_secret", _settings.Discord.Secret },
 			{ "code", authCode },
 			{ "grant_type", "authorization_code" },
-			{ "code", authCode },
 			{ "redirect_uri", _settings.Discord.RedirectUri },
 			{ "scope", "identify guilds" },
 		};
+		
+		var oauthRes = await client.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(reqBody));
+		var content = await oauthRes.Content.ReadAsStringAsync();
+		var accessToken = JsonDocument.Parse(content).RootElement.GetString("access_token");
 
-		var res = await client.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(content));
-		Console.WriteLine(res.StatusCode);
+		if (!oauthRes.IsSuccessStatusCode) {
+			throw new Exception("Fetching access token failed.");
+		}
 
-		//	const oauthData = await tokenResponseData.body.json();
-		//const AccessToken = oauthData.access_token;
-		//request("GET", "/users/@me/guilds", undefined, {
-		//auth:
-		//	{
-		//	type: "Bearer",
-		//		creds: AccessToken,
-		//	},
-		//});
+		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+		var guildsRes = await client.GetAsync("https://discord.com/api/users/@me/guilds");
 
-		return new();
+		if (!guildsRes.IsSuccessStatusCode) {
+			throw new Exception("Fetching guilds failed.");
+		}
+
+		var guilds = JsonSerializer.Deserialize<List<Guild>>(await guildsRes.Content.ReadAsStringAsync());
+		return guilds!;
 	}
 
 	public class User {
