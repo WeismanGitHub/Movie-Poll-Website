@@ -13,13 +13,13 @@ public class Utils {
 	}
 
 	public class Guild {
-		public required string id;
-		public required string name;
-		public required string icon;
-		public required bool owner;
-		public required int permissions;
-		public required string permissions_new;
-		public required List<string> features;
+		public string id { get; set; }
+		public string name { get; set; }
+		public string icon { get; set; }
+		public bool owner { get; set; }
+		public int permissions { get; set; }
+		public string permissions_new { get; set; }
+		public List<string> features { get; set; }
 	}
 
 	public async Task<List<Guild>> GetGuilds(string authCode) {
