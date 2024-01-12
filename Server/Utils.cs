@@ -14,22 +14,20 @@ public class Utils {
 	}
 
 	public async Task<List<Guild>> GetGuilds(string authCode) {
-		Console.WriteLine(authCode, _settings);
-		//	const tokenResponseData = await request('https://discord.com/api/oauth2/token', {
-		//	method: 'POST',
-		//	body: new URLSearchParams({
-		//		client_id: process.env.CLIENT_ID,
-		//		client_secret: process.env.CLIENT_SECRET,
-		//		code,
-		//		grant_type: 'authorization_code',
-		//		redirect_uri: process.env.REDIRECT_URI,
-		//		scope: 'guilds'
-		//	}).toString(),
-		//	headers:
-		//		{
-		//			'Content-Type': 'application/x-www-form-urlencoded',
-		//	},
-		//});
+		var client = new HttpClient();
+		
+		var content = new Dictionary<string, string>() {
+			{ "client_id", _settings.Discord.Id },
+			{ "client_secret", _settings.Discord.Secret },
+			{ "code", authCode },
+			{ "grant_type", "authorization_code" },
+			{ "code", authCode },
+			{ "redirect_uri", _settings.Discord.RedirectUri },
+			{ "scope", "identify guilds" },
+		};
+
+		var res = await client.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(content));
+		Console.WriteLine(res.StatusCode);
 
 		//	const oauthData = await tokenResponseData.body.json();
 		//const AccessToken = oauthData.access_token;

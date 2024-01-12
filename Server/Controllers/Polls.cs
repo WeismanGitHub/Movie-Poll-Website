@@ -109,7 +109,7 @@ public class PollsController : ControllerBase {
 		public required string ItemId { get; set; }
 	}
 
-	[HttpPost("Vote/{id}", Name = "Vote")]
+	[HttpPost("vote/{id}", Name = "Vote")]
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]

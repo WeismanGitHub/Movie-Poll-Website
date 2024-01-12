@@ -13,12 +13,12 @@ public class SelfController : ControllerBase {
 		_settings = settings;
 	}
 
-	[HttpGet("servers", Name = "GetGuilds")]
+	[HttpGet("guilds", Name = "GetGuilds")]
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-	public async Task<IActionResult> GetGuilds(string authCode) {
+	public async Task<IActionResult> GetGuilds([FromQuery(Name = "code")] string authCode) {
 		var utils = new Utils(_settings);
-		var guilds = utils.GetGuilds(authCode);
+		var guilds = await utils.GetGuilds(authCode);
 
 		return Ok(guilds);
 	}
