@@ -8,6 +8,7 @@ import ky from 'ky';
 
 type Movie = {
     title: string;
+    id: string;
     poster_path: string;
     release_date: string;
 };
@@ -43,6 +44,12 @@ export default function CreatePoll() {
     useEffect(() => {
         setPage(1);
     }, [query]);
+
+    useEffect(() => {
+        if (query.length) {
+            search();
+        }
+    }, [page]);
 
     async function search() {
         ky.get(`/api/search?query=${query}&page=${page}`)
@@ -212,7 +219,7 @@ export default function CreatePoll() {
                             <Row className="mb-2 d-flex justify-content-center align-content-center">
                                 {values.expirationToggle && (
                                     <DateTimePicker
-                                        className="w-25"
+                                        className="w-25 d-flex justify-content-center align-items-center"
                                         onChange={(value) => setExpirationDate(value)}
                                         value={expirationDate}
                                     />
@@ -329,14 +336,12 @@ export default function CreatePoll() {
                                     <Pagination.First
                                         disabled={!query.length || page === 1}
                                         onClick={() => {
-                                            search();
                                             setPage(1);
                                         }}
                                     />
                                     <Pagination.Prev
                                         disabled={!query.length || page === 1}
                                         onClick={() => {
-                                            search();
                                             setPage(page - 1);
                                         }}
                                     />
@@ -344,7 +349,6 @@ export default function CreatePoll() {
                                     <Pagination.Next
                                         disabled={!query.length || result?.total_pages === page}
                                         onClick={() => {
-                                            search();
                                             setPage(page + 1);
                                         }}
                                     />
@@ -356,22 +360,96 @@ export default function CreatePoll() {
                                         }
                                         onClick={() => {
                                             setPage(result!.total_pages);
-                                            search();
                                         }}
                                     />
                                 </Pagination>
                             </Row>
                             <Row>
-                                {!result ? (
+                                {!result?.total_results ? (
                                     <div>no results...</div>
                                 ) : (
                                     <div>
-                                        <Col>
-                                            {result.results.map((movie) => {
-                                                return <div>{movie.title}</div>;
-                                            })}
+                                        <Col className="w-50 float-start">
+                                            <ul className="list-inline-scroll list-unstyled d-flex flex-wrap align-content-center justify-content-center">
+                                                {result.results.map((movie) => {
+                                                    return (
+                                                        <li>
+                                                            <img
+                                                                onClick={() => {
+                                                                    if (selected.length === 50) {
+                                                                        setError('Cannot add more than 50 movies.');
+                                                                        setShowError(true);
+                                                                        window.scrollTo(0, 0)
+                                                                        return
+                                                                    }
+
+                                                                    setSelected((s) => [
+                                                                        ...new Set([...s, movie]),
+                                                                    ]);
+                                                                }}
+                                                                width="150px"
+                                                                className="list-inline-item"
+                                                                src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
+                                                                alt="movie poster"
+                                                                style={{
+                                                                    cursor: 'pointer',
+                                                                    borderRadius: '5px',
+                                                                    margin: '2px',
+                                                                }}
+                                                            />
+                                                            <a
+                                                                href={`https://www.themoviedb.org/movie/${movie.id}`}
+                                                            >
+                                                                <div
+                                                                    style={{ width: '150px' }}
+                                                                    className="text-wrap"
+                                                                >
+                                                                    {movie.title}{' '}
+                                                                    {movie.release_date.slice(0, 4)}
+                                                                </div>
+                                                            </a>
+                                                        </li>
+                                                    );
+                                                })}
+                                            </ul>
                                         </Col>
-                                        <Col></Col>
+                                        <Col className="w-50 float-end">
+                                            <ul className="list-inline-scroll list-unstyled d-flex flex-wrap align-content-center justify-content-center">
+                                                {selected.map((movie) => {
+                                                    return (
+                                                        <li>
+                                                            <img
+                                                                onClick={() =>
+                                                                    setSelected((s) =>
+                                                                        s.filter((m) => m.id !== movie.id)
+                                                                    )
+                                                                }
+                                                                width="150px"
+                                                                className="list-inline-item"
+                                                                src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
+                                                                alt="movie poster"
+                                                                style={{
+                                                                    borderRadius: '5px',
+                                                                    margin: '2px',
+                                                                    cursor: 'pointer',
+                                                                }}
+                                                            />
+                                                            <a
+                                                                href={`https://www.themoviedb.org/movie/${movie.id}`}
+                                                            >
+                                                                <div
+                                                                    style={{ width: '150px' }}
+                                                                    className="text-wrap"
+                                                                >
+                                                                    {movie.title}{' '}
+                                                                    {movie.release_date.slice(0, 4)}
+                                                                </div>
+                                                            </a>
+                                                        </li>
+                                                    );
+                                                })}
+                                            </ul>
+                                        </Col>
                                     </div>
                                 )}
                             </Row>
