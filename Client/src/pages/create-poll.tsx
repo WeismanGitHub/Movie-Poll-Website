@@ -4,7 +4,7 @@ import DateTimePicker from 'react-datetime-picker';
 import { useEffect, useState } from 'react';
 import { Field, Formik } from 'formik';
 import * as yup from 'yup';
-import ky from 'ky';
+import ky, { HTTPError } from 'ky';
 
 export default function CreatePoll() {
     const [error, setError] = useState<string | null>(null);
@@ -16,7 +16,7 @@ export default function CreatePoll() {
     const [expirationDate, setExpirationDate] = useState<Date | null>(null);
     const [expires, setExpires] = useState(false);
 
-    const [restrictError, setRestrictError] = useState<string | null>('A guild must be selected.');
+    const [restrictError, setRestrictError] = useState<string | null>('A server must be selected.');
     const [code, setCode] = useState<string | null>(searchParams.get('code'));
     const [guilds, setGuilds] = useState<Guild[] | null>(null);
     const [guildId, setGuildId] = useState<string | null>();
@@ -26,7 +26,7 @@ export default function CreatePoll() {
 
     useEffect(() => {
         if (restricted && !guildId) {
-            setRestrictError('A guild must be selected.');
+            setRestrictError('A server must be selected.');
         } else if (!restricted) {
             setRestrictError(null);
         }
@@ -44,8 +44,10 @@ export default function CreatePoll() {
             .then((res) => {
                 setGuilds(res as Guild[]);
             })
-            .catch(() => {
-                setError('Could not get your servers.');
+            .catch(async (res: HTTPError) => {
+                res;
+                // const err = await res.response.json()
+                setError("Couldn't get servers.");
                 setShowError(true);
                 setRestricted(false);
                 setCode(null);
@@ -182,8 +184,23 @@ export default function CreatePoll() {
                                             guilds.map((guild) => (
                                                 <li
                                                     key={guild.id}
-                                                    className="list-inline-item d-flex"
-                                                    onClick={() => setGuildId(guild.id)}
+                                                    className="list-inline-item d-flex brightness-effect"
+                                                    style={
+                                                        guildId === guild.id
+                                                            ? {
+                                                                  border: 'solid black 2px',
+                                                                  borderRadius: '5px',
+                                                                  padding: '2px'
+                                                              }
+                                                            : {
+                                                                  border: 'solid transparent 2px',
+                                                                  borderRadius: '5px',
+                                                                  padding: '2px'
+                                                              }
+                                                    }
+                                                    onClick={() =>
+                                                        setGuildId(guild.id === guildId ? null : guild.id)
+                                                    }
                                                 >
                                                     <img
                                                         width={65}
@@ -208,7 +225,9 @@ export default function CreatePoll() {
                                                 </li>
                                             ))
                                         ) : (
-                                            <div>no servers...</div>
+                                            <div className="text-danger justify-content-center align-content-center w-100">
+                                                <u>no servers...</u>
+                                            </div>
                                         )}
                                     </ul>
                                 )}

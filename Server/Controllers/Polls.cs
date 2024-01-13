@@ -51,7 +51,7 @@ public class PollsController : ControllerBase {
 			var utils = new Utils(_settings);
 			var guilds = await utils.GetGuilds(input.AuthCode);
 
-			if (!guilds.Any(guild => guild.Id == input.GuildId)) {
+			if (!guilds.Any(guild => guild.id == input.GuildId)) {
 				return BadRequest("You must be in the server to restrict this poll.");
 			}
 		}
@@ -137,7 +137,7 @@ public class PollsController : ControllerBase {
 		if (poll.GuildId != null) {
 			var guilds = await utils.GetGuilds(vote.AuthCode);
 
-			if (!guilds.Any(guild => guild.Id == poll.GuildId)) {
+			if (!guilds.Any(guild => guild.id == poll.GuildId)) {
 				return BadRequest("This poll is restricted to a server that you aren't in.");
 			}
 		}
