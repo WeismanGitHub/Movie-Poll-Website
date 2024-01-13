@@ -6,7 +6,16 @@ public class Vote {
 	[Key, Required]
 	public required string UserId { get; set; }
 	[Required]
-	public string ItemId { get; set; }
+	public string MovieId { get; set; }
+}
+
+public class Movie {
+	[Key, Required, MaxLength(50)]
+	public required string Id { get; set; }
+	[Required, MaxLength(50)]
+	public required string PosterPath { get; set; }
+	[Required]
+	public required string Name { get; set; }
 }
 
 public class Poll {
@@ -20,5 +29,5 @@ public class Poll {
 	public DateTime CreatedAt { get; } = DateTime.Now;
 	public DateTime? Expiration { get; set; }
 	[Required, MinLength(2), MaxLength(50)]
-	public List<string> ItemIds { get; set; } = new();
+	public List<Movie> Movies { get; set; } = new();
 }
