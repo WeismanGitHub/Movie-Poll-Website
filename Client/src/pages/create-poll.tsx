@@ -1,15 +1,29 @@
-import { ToastContainer, Toast, Button, Row, Form, Col, InputGroup } from 'react-bootstrap';
+import { ToastContainer, Toast, Button, Row, Form, Col, InputGroup, Pagination } from 'react-bootstrap';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import DateTimePicker from 'react-datetime-picker';
 import { useEffect, useState } from 'react';
 import { Field, Formik } from 'formik';
 import * as yup from 'yup';
-import ky, { HTTPError } from 'ky';
+import ky from 'ky';
+
+type Movie = {
+    title: string;
+    poster_path: string;
+    release_date: string;
+};
+
+type SearchResult = {
+    page: number;
+    total_pages: number;
+    total_results: number;
+    results: Movie[];
+};
 
 export default function CreatePoll() {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [error, setError] = useState<string | null>(null);
     const [showError, setShowError] = useState(false);
-    const [searchParams] = useSearchParams();
+    const [page, setPage] = useState(1);
     const navigate = useNavigate();
 
     const [expirationError, setExpirationError] = useState<string | null>(null);
@@ -22,18 +36,47 @@ export default function CreatePoll() {
     const [guildId, setGuildId] = useState<string | null>();
     const [restricted, setRestricted] = useState(false);
 
-    // const [page, setPage] = useState(0);
+    const [result, setResult] = useState<SearchResult | null>(null);
+    const [selected, setSelected] = useState<Movie[]>([]);
+    const [query, setQuery] = useState('');
+
+    useEffect(() => {
+        setPage(1);
+    }, [query]);
+
+    async function search() {
+        ky.get(`/api/search?query=${query}&page=${page}`)
+            .then(async (res) => {
+                const searchRes: SearchResult = await res.json();
+
+                if (
+                    searchRes.total_results == undefined ||
+                    searchRes.results == undefined ||
+                    searchRes.total_pages == undefined ||
+                    searchRes.page == undefined
+                ) {
+                    setError('Could not search.');
+                    return setShowError(true);
+                }
+
+                setResult(searchRes);
+            })
+            .catch(() => {
+                setError('Could not search.');
+                setShowError(true);
+            });
+    }
 
     useEffect(() => {
         if (restricted && !guildId) {
             setRestrictError('A server must be selected.');
-        } else if (!restricted) {
+        } else if (!restricted || guildId) {
             setRestrictError(null);
         }
     }, [guildId, restricted]);
 
     useEffect(() => {
-        searchParams.delete('code');
+        setSearchParams({});
 
         if (!code) return;
 
@@ -44,10 +87,8 @@ export default function CreatePoll() {
             .then((res) => {
                 setGuilds(res as Guild[]);
             })
-            .catch(async (res: HTTPError) => {
-                res;
-                // const err = await res.response.json()
-                setError("Couldn't get servers.");
+            .catch(async () => {
+                setError('Could not get your servers');
                 setShowError(true);
                 setRestricted(false);
                 setCode(null);
@@ -70,10 +111,13 @@ export default function CreatePoll() {
             .required('Question is a required field.')
             .min(1, 'Must be at least 1 characters.')
             .max(500, 'Cannot be more than 500 characters.'),
+        query: yup.string().min(1).max(500),
     });
 
     async function createPoll(values: { question: string }) {
         console.log(values, guildId);
+        setSelected;
+        selected;
     }
 
     return (
@@ -102,7 +146,7 @@ export default function CreatePoll() {
                         question: '',
                         expirationToggle: false,
                         restrictionToggle: false,
-                        search: '',
+                        query: '',
                     }}
                 >
                     {({ handleSubmit, handleChange, values, errors, setFieldValue }) => (
@@ -190,12 +234,12 @@ export default function CreatePoll() {
                                                             ? {
                                                                   border: 'solid black 2px',
                                                                   borderRadius: '5px',
-                                                                  padding: '2px'
+                                                                  padding: '2px',
                                                               }
                                                             : {
                                                                   border: 'solid transparent 2px',
                                                                   borderRadius: '5px',
-                                                                  padding: '2px'
+                                                                  padding: '2px',
                                                               }
                                                     }
                                                     onClick={() =>
@@ -233,22 +277,103 @@ export default function CreatePoll() {
                                 )}
                             </Row>
                             <Row className="mb-2">
-                                <Form.Group as={Col} controlId="searchID">
+                                <Form.Group as={Col} controlId="query">
                                     <Form.Label>Search Movies</Form.Label>
                                     <InputGroup hasValidation>
                                         <Form.Control
-                                            type="search"
+                                            type="text"
                                             aria-describedby="inputGroupPrepend"
-                                            name="search"
-                                            value={values.search}
-                                            onChange={handleChange}
-                                            isInvalid={!!errors.search}
+                                            name="query"
+                                            value={values.query}
+                                            onChange={(change) => {
+                                                setQuery(change.target.value);
+                                                handleChange(change);
+                                            }}
+                                            isInvalid={!!errors.query}
                                         />
+                                        <Button
+                                            onClick={async () => {
+                                                try {
+                                                    const res = await ky.get(
+                                                        `/api/search?query=${values.query}&page=${page}`
+                                                    );
+                                                    const searchRes: SearchResult = await res.json();
+
+                                                    if (
+                                                        searchRes.total_results == undefined ||
+                                                        searchRes.results == undefined ||
+                                                        searchRes.total_pages == undefined ||
+                                                        searchRes.page == undefined
+                                                    ) {
+                                                        setError('Could not search.');
+                                                        return setShowError(true);
+                                                    }
+
+                                                    setResult(searchRes);
+                                                } catch (err) {
+                                                    setError('Could not search.');
+                                                    setShowError(true);
+                                                }
+                                            }}
+                                        >
+                                            Search
+                                        </Button>
                                         <Form.Control.Feedback type="invalid">
-                                            {errors.search}
+                                            {errors.query}
                                         </Form.Control.Feedback>
                                     </InputGroup>
                                 </Form.Group>
+                            </Row>
+                            <Row>
+                                <Pagination size="sm" className="justify-content-center">
+                                    <Pagination.First
+                                        disabled={!query.length || page === 1}
+                                        onClick={() => {
+                                            search();
+                                            setPage(1);
+                                        }}
+                                    />
+                                    <Pagination.Prev
+                                        disabled={!query.length || page === 1}
+                                        onClick={() => {
+                                            search();
+                                            setPage(page - 1);
+                                        }}
+                                    />
+                                    <Pagination.Item>{page}</Pagination.Item>
+                                    <Pagination.Next
+                                        disabled={!query.length || result?.total_pages === page}
+                                        onClick={() => {
+                                            search();
+                                            setPage(page + 1);
+                                        }}
+                                    />
+                                    <Pagination.Last
+                                        disabled={
+                                            !query.length ||
+                                            !result?.total_pages ||
+                                            result?.total_pages === page
+                                        }
+                                        onClick={() => {
+                                            setPage(result!.total_pages);
+                                            search();
+                                        }}
+                                    />
+                                </Pagination>
+                            </Row>
+                            <Row>
+                                {!result ? (
+                                    <div>no results...</div>
+                                ) : (
+                                    <div>
+                                        <Col>
+                                            {result.results.map((movie) => {
+                                                return <div>{movie.title}</div>;
+                                            })}
+                                        </Col>
+                                        <Col></Col>
+                                    </div>
+                                )}
                             </Row>
                             <Button type="submit">Create</Button>
                         </Form>
