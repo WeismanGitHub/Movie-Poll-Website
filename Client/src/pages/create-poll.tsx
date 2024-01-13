@@ -14,9 +14,9 @@ export default function CreatePoll() {
 
     const [expirationError, setExpirationError] = useState<string | null>(null);
     const [expirationDate, setExpirationDate] = useState<Date | null>(null);
-    const [expires, setExpires] = useState(false)
+    const [expires, setExpires] = useState(false);
 
-    const [restrictError, setRestrictError] = useState<string | null>("A guild must be selected.");
+    const [restrictError, setRestrictError] = useState<string | null>('A guild must be selected.');
     const [code, setCode] = useState<string | null>(searchParams.get('code'));
     const [guilds, setGuilds] = useState<Guild[] | null>(null);
     const [guildId, setGuildId] = useState<string | null>();
@@ -26,14 +26,14 @@ export default function CreatePoll() {
 
     useEffect(() => {
         if (restricted && !guildId) {
-            setRestrictError("A guild must be selected.")
+            setRestrictError('A guild must be selected.');
         } else if (!restricted) {
-            setRestrictError(null)
+            setRestrictError(null);
         }
-    }, [guildId, restricted])
+    }, [guildId, restricted]);
 
     useEffect(() => {
-        searchParams.delete('code')
+        searchParams.delete('code');
 
         if (!code) return;
 
@@ -56,7 +56,7 @@ export default function CreatePoll() {
         if (expirationDate && expirationDate.valueOf() <= Date.now()) {
             setExpirationError('Must expire in the future.');
         } else if (!expirationDate && expires) {
-            setExpirationError("You must select an expiration date.")
+            setExpirationError('You must select an expiration date.');
         } else {
             setExpirationError(null);
         }
@@ -129,7 +129,7 @@ export default function CreatePoll() {
                                         type="checkbox"
                                         name="expirationToggle"
                                         onChange={() => {
-                                            setExpires(!expires)
+                                            setExpires(!expires);
                                             setFieldValue('expirationToggle', !values.expirationToggle);
                                             setExpirationDate(null);
                                             setExpirationError(null);
@@ -163,10 +163,10 @@ export default function CreatePoll() {
                                     </Form.Control.Feedback>
                                 </Form.Group>
                             </Row>
-                            <Row className='mb-2 d-flex justify-content-center align-content-center'>
+                            <Row className="mb-2 d-flex justify-content-center align-content-center">
                                 {values.expirationToggle && (
                                     <DateTimePicker
-                                        className='w-25'
+                                        className="w-25"
                                         onChange={(value) => setExpirationDate(value)}
                                         value={expirationDate}
                                     />
