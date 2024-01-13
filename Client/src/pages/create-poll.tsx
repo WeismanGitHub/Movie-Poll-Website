@@ -82,7 +82,7 @@ export default function CreatePoll() {
 
         setRestricted(true);
 
-        ky.get(`/api/self/guilds?code=${code}`)
+        ky.get(`/api/guilds?code=${code}`)
             .json()
             .then((res) => {
                 setGuilds(res as Guild[]);
