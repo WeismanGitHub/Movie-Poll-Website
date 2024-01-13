@@ -22,7 +22,7 @@ public class PollsController : ControllerBase {
 		public string? GuildId { get; set; }
 		public string? AuthCode { get; set; }
 		[Required, MinLength(2), MaxLength(50)]
-		public required List<string> ItemIds {  get; set; }
+		public required List<Movie> Movies {  get; set; }
 	}
 
 	[HttpPost(Name = "CreatePoll")]
@@ -35,11 +35,11 @@ public class PollsController : ControllerBase {
 
 		if (input.Expiration != null && input.Expiration <= DateTime.Now) {
 			return BadRequest("Expiration must be greater than the current time.");
-		} else if (input.ItemIds.Count < 2 || input.ItemIds.Count > 50) {
-			return BadRequest("Selected items must be between 2 and 50.");
+		} else if (input.Movies.Count < 2 || input.Movies.Count > 50) {
+			return BadRequest("Selected movies must be between 2 and 50.");
 		}
 
-		if (input.ItemIds.Any(itemId => itemId.Length > 30)) {
+		if (input.Movies.Any(Movie => Movie.Id.Length > 50)) {
 			return BadRequest("Invalid Ids.");
 		}
 
@@ -60,7 +60,7 @@ public class PollsController : ControllerBase {
 			Question = input.Question,
 			Expiration = input.Expiration,
 			GuildId = input.GuildId,
-			ItemIds = input.ItemIds,
+			Movies = input.Movies,
 		};
 
 		db.Add(poll);
@@ -72,7 +72,7 @@ public class PollsController : ControllerBase {
 	public class PollResponse {
 		public required string Question { get; set; }
 		public required IEnumerable<string> Votes {  get; set; }
-		public required List<string> ItemIds {  get; set; }
+		public required List<Movie> Movies {  get; set; }
 		public required DateTime CreatedAt { get; set; }
 		public required bool ServerRestricted { get; set; }
 		public DateTime? Expiration { get; set; }
@@ -96,9 +96,9 @@ public class PollsController : ControllerBase {
 		
 		return Ok(new PollResponse() {
 			Question = poll.Question,
-			Votes = poll.Votes.Select(vote => vote.ItemId),
+			Votes = poll.Votes.Select(vote => vote.MovieId),
 			Expiration = poll.Expiration,
-			ItemIds = poll.ItemIds,
+			Movies = poll.Movies,
 			ServerRestricted = poll.GuildId != null,
 			CreatedAt = poll.CreatedAt,
 		});
@@ -106,7 +106,7 @@ public class PollsController : ControllerBase {
 
 	public class VoteDTO {
 		public required string AuthCode { get; set; }
-		public required string ItemId { get; set; }
+		public required string MovieId { get; set; }
 	}
 
 	[HttpPost("vote/{id}", Name = "Vote")]
@@ -130,6 +130,10 @@ public class PollsController : ControllerBase {
 			return NotFound("Could not find poll.");
 		}
 
+		if (!poll.Movies.Any((Movie) => Movie.Id == vote.MovieId)) {
+			return BadRequest("This movie isn't an option.");
+		}
+
 		if (poll.Expiration != null && poll.Expiration < DateTime.Now) {
 			return BadRequest("Poll has expired.");
 		}
@@ -145,7 +149,7 @@ public class PollsController : ControllerBase {
 		var user = await utils.GetUser(vote.AuthCode);
 
 		poll.Votes.Add(new() {
-			ItemId = vote.ItemId,
+			MovieId = vote.MovieId,
 			UserId = user.Id
 		});
 
