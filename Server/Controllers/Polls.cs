@@ -81,8 +81,6 @@ public class PollsController : ControllerBase {
 	[HttpGet(Name = "GetPoll")]
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
-	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-	[ProducesResponseType(StatusCodes.Status403Forbidden)]
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 	public async Task<IActionResult> GetPoll(Guid id) {
 		using var db = new LbPollContext();
@@ -124,6 +122,12 @@ public class PollsController : ControllerBase {
 			return BadRequest("Missing auth code.");
 		}
 
+		var user = await utils.GetUser(vote.AuthCode);
+
+		if (user == null) {
+			return Unauthorized("Could not get your account.");
+		}
+
 		var poll = await db.FindAsync<Poll>(id);
 
 		if (poll == null) {
@@ -135,7 +139,7 @@ public class PollsController : ControllerBase {
 		}
 
 		if (poll.Expiration != null && poll.Expiration < DateTime.Now) {
-			return BadRequest("Poll has expired.");
+			return Forbid("Poll has expired.");
 		}
 
 		if (poll.GuildId != null) {
@@ -145,8 +149,6 @@ public class PollsController : ControllerBase {
 				return BadRequest("This poll is restricted to a server that you aren't in.");
 			}
 		}
-
-		var user = await utils.GetUser(vote.AuthCode);
 
 		poll.Votes.Add(new() {
 			MovieId = vote.MovieId,
