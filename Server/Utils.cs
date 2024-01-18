@@ -22,9 +22,9 @@ public class Utils {
 		public List<string> features { get; set; }
 	}
 
-	public async Task<List<Guild>> GetGuilds(string authCode) {
+	private async Task<string> getAccessToken(string authCode) {
 		var client = new HttpClient();
-		
+
 		var reqBody = new Dictionary<string, string>() {
 			{ "client_id", _settings.Discord.Id },
 			{ "client_secret", _settings.Discord.Secret },
@@ -33,14 +33,21 @@ public class Utils {
 			{ "redirect_uri", _settings.Discord.RedirectUri },
 			{ "scope", "identify guilds" },
 		};
-		
+
 		var oauthRes = await client.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(reqBody));
-		var content = await oauthRes.Content.ReadAsStringAsync();
-		var accessToken = JsonDocument.Parse(content).RootElement.GetString("access_token");
 
 		if (!oauthRes.IsSuccessStatusCode) {
 			throw new Exception("Fetching access token failed.");
 		}
+
+		var content = await oauthRes.Content.ReadAsStringAsync();
+		return JsonDocument.Parse(content).RootElement.GetString("access_token");
+	}
+
+	public async Task<List<Guild>> GetGuilds(string authCode) {
+		var client = new HttpClient();
+				
+		var accessToken = await getAccessToken(authCode);
 
 		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 		var guildsRes = await client.GetAsync("https://discord.com/api/users/@me/guilds");
@@ -55,10 +62,21 @@ public class Utils {
 
 	public class User {
 		public string Id { get; set; }
+		// there are more properties, but i dont need them
 	}
 
 	public async Task<User> GetUser(string authCode) {
-		Console.WriteLine(authCode);
-		return new();
+		var client = new HttpClient();
+		var accessToken = await getAccessToken(authCode);
+
+		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+		var userRes = await client.GetAsync("https://discord.com/api/users/@me/");
+
+		if (!userRes.IsSuccessStatusCode) {
+			throw new Exception("Fetching guilds failed.");
+		}
+
+		var guilds = JsonSerializer.Deserialize<User>(await userRes.Content.ReadAsStringAsync());
+		return guilds!;
 	}
 }
