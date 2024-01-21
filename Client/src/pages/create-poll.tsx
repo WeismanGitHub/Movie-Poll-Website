@@ -132,11 +132,16 @@ export default function CreatePoll() {
                                     guildId: values.guildId,
                                     authCode: code,
                                     movies: values.movies.map((movie) => {
-                                        return { id: movie.id, posterPath: movie.poster_path, name: movie.title };
+                                        return {
+                                            id: movie.id,
+                                            posterPath: movie.poster_path,
+                                            name: movie.title,
+                                        };
                                     }),
                                 },
                             });
                         } catch (err) {
+                            console.log(err);
                             window.scrollTo(0, 0);
                             setError('Could not create poll.');
                             setShowError(true);
@@ -154,250 +159,255 @@ export default function CreatePoll() {
                     validate={(values) => {
                         const errors: {
                             expirationDate?: string;
-                            guildId?: string
+                            guildId?: string;
                         } = {};
 
                         if (values.movies.length > 50) {
                             window.scrollTo(0, 0);
                         }
-    
+
                         if (values.expirationToggle && !values.expirationDate) {
-                            errors.expirationDate = 'Choose an expiration.'
+                            errors.expirationDate = 'Choose an expiration.';
                         }
 
                         if (values.restrictionToggle && !values.guildId) {
-                            errors.guildId = "Choose a server."
+                            errors.guildId = 'Choose a server.';
                         }
 
-                        return errors
+                        return errors;
                     }}
                 >
-                    {({ handleSubmit, handleChange, values, errors, setFieldValue }) => (
-                        <Form noValidate onSubmit={handleSubmit}>
-                            <Row className="mb-2">
-                                <Form.Group as={Col}>
-                                    <Form.Label>Question</Form.Label>
-                                    <Form.Control
-                                        as="textarea"
-                                        type="textarea"
-                                        rows={4}
-                                        name="question"
-                                        value={values.question}
-                                        onChange={handleChange}
-                                        isInvalid={!!errors.question}
-                                    />
-                                    <Form.Control.Feedback type="invalid">
-                                        {errors.question}
-                                    </Form.Control.Feedback>
-                                </Form.Group>
-                            </Row>
-                            <Row className="mb-2">
-                                <Form.Group as={Col}>
-                                    <Form.Label className="me-1">Expires</Form.Label>
-                                    <Field
-                                        type="checkbox"
-                                        name="expirationToggle"
-                                        onChange={() => {
-                                            setFieldValue('expirationToggle', !values.expirationToggle);
-                                            setFieldValue('expirationDate', null);
-                                        }}
-                                    />
-                                    <Form.Control hidden={true} isInvalid={Boolean(errors.expirationDate)} />
-                                    <Form.Control.Feedback type="invalid">
-                                        {errors.expirationDate}
-                                    </Form.Control.Feedback>
-                                </Form.Group>
-                                <Form.Group as={Col}>
-                                    <Form.Label className="me-1">Server Restricted</Form.Label>
-                                    <Field
-                                        type="checkbox"
-                                        checked={values.restrictionToggle}
-                                        name="restrictionToggle"
-                                        onChange={() => {
-                                            if (!code) {
-                                                localStorage.setItem('redirect', 'create');
-                                                navigate('/auth');
-                                            }
-
-                                            setFieldValue('restrictionToggle', !values.restrictionToggle);
-                                            setFieldValue('guildId', null);
-                                        }}
-                                    />
-                                    <Form.Control hidden={true} isInvalid={Boolean(errors.guildId)} />
-                                    <Form.Control.Feedback type="invalid">
-                                        {errors.guildId}
-                                    </Form.Control.Feedback>
-                                </Form.Group>
-                            </Row>
-                            <Row className="mb-2 d-flex justify-content-center align-content-center">
-                                {values.expirationToggle && (
-                                    <DateTimePicker
-                                        className="w-25 d-flex justify-content-center align-items-center"
-                                        onChange={(value) => setFieldValue('expirationDate', value)}
-                                        value={values.expirationDate}
-                                    />
-                                )}
-                            </Row>
-                            <Row className="mb-2">
-                                {values.restrictionToggle && guilds && (
-                                    <ul
-                                        className="list-inline-scroll list-unstyled d-flex overflow-x-scroll overflow-y-hidden"
-                                        style={{ height: '90px' }}
-                                    >
-                                        {guilds.length ? (
-                                            guilds.map((guild) => (
-                                                <li
-                                                    key={guild.id}
-                                                    className="list-inline-item d-flex brightness-effect"
-                                                    style={
-                                                        values.guildId === guild.id
-                                                            ? {
-                                                                  border: 'solid black 2px',
-                                                                  borderRadius: '5px',
-                                                                  padding: '2px',
-                                                              }
-                                                            : {
-                                                                  border: 'solid transparent 2px',
-                                                                  borderRadius: '5px',
-                                                                  padding: '2px',
-                                                              }
-                                                    }
-                                                    onClick={() =>
-                                                        setFieldValue(
-                                                            'guildId',
-                                                            guild.id === values.guildId ? null : guild.id
-                                                        )
-                                                    }
-                                                >
-                                                    <img
-                                                        width={65}
-                                                        height={65}
-                                                        src={
-                                                            guild.icon
-                                                                ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
-                                                                : '/discord.svg'
-                                                        }
-                                                        alt="server name"
-                                                        style={{
-                                                            borderRadius: '50%',
-                                                            marginRight: '2px',
-                                                        }}
-                                                    />
-                                                    <div
-                                                        className="text-nowrap flex-grow-1 d-flex align-items-center justify-content-center"
-                                                        style={{ height: '65px' }}
-                                                    >
-                                                        {guild.name}
-                                                    </div>
-                                                </li>
-                                            ))
-                                        ) : (
-                                            <div className="text-danger justify-content-center align-content-center w-100">
-                                                <u>no servers...</u>
-                                            </div>
-                                        )}
-                                    </ul>
-                                )}
-                            </Row>
-                            <Row className="mb-2">
-                                <Form.Group as={Col} controlId="query">
-                                    <Form.Label>Search Movies</Form.Label>
-                                    <InputGroup hasValidation>
+                    {({ handleSubmit, handleChange, values, errors, setFieldValue, setFieldError }) => {
+                        return (
+                            <Form noValidate onSubmit={handleSubmit}>
+                                <Row className="mb-2">
+                                    <Form.Group as={Col}>
+                                        <Form.Label>Question</Form.Label>
                                         <Form.Control
-                                            type="text"
-                                            aria-describedby="inputGroupPrepend"
-                                            name="query"
-                                            value={values.query}
-                                            onChange={(change) => {
-                                                setQuery(change.target.value);
-                                                handleChange(change);
-                                            }}
-                                            isInvalid={!!errors.query}
+                                            as="textarea"
+                                            type="textarea"
+                                            rows={4}
+                                            name="question"
+                                            value={values.question}
+                                            onChange={handleChange}
+                                            isInvalid={!!errors.question}
                                         />
-                                        <Button
-                                            onClick={async () => {
-                                                try {
-                                                    const res = await ky.get(
-                                                        `/api/search?query=${values.query}&page=${page}`
-                                                    );
-                                                    const searchRes: SearchResult = await res.json();
-
-                                                    if (
-                                                        searchRes.total_results == undefined ||
-                                                        searchRes.results == undefined ||
-                                                        searchRes.total_pages == undefined ||
-                                                        searchRes.page == undefined
-                                                    ) {
-                                                        setError('Could not search.');
-                                                        return setShowError(true);
-                                                    }
-
-                                                    setResult(searchRes);
-                                                } catch (err) {
-                                                    setError('Could not search.');
-                                                    setShowError(true);
-                                                }
-                                            }}
-                                        >
-                                            Search
-                                        </Button>
                                         <Form.Control.Feedback type="invalid">
-                                            {errors.query}
+                                            {errors.question}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                </Row>
+                                <Row className="mb-2">
+                                    <Form.Group as={Col}>
+                                        <Form.Label className="me-1">Expires</Form.Label>
+                                        <Field
+                                            type="checkbox"
+                                            name="expirationToggle"
+                                            onChange={() => {
+                                                setFieldValue('expirationToggle', !values.expirationToggle);
+                                                setFieldValue('expirationDate', null);
+                                            }}
+                                        />
+                                        <Form.Control
+                                            hidden={true}
+                                            isInvalid={Boolean(errors.expirationDate)}
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.expirationDate}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                    <Form.Group as={Col}>
+                                        <Form.Label className="me-1">Server Restricted</Form.Label>
+                                        <Field
+                                            type="checkbox"
+                                            checked={values.restrictionToggle}
+                                            name="restrictionToggle"
+                                            onChange={() => {
+                                                if (!code) {
+                                                    localStorage.setItem('redirect', 'create');
+                                                    navigate('/auth');
+                                                }
+
+                                                setFieldValue('restrictionToggle', !values.restrictionToggle);
+                                                setFieldValue('guildId', null);
+                                            }}
+                                        />
+                                        <Form.Control hidden={true} isInvalid={Boolean(errors.guildId)} />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.guildId}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                </Row>
+                                <Row className="mb-2 d-flex justify-content-center align-content-center">
+                                    {values.expirationToggle && (
+                                        <DateTimePicker
+                                            className="w-25 d-flex justify-content-center align-items-center"
+                                            onChange={(value) => setFieldValue('expirationDate', value)}
+                                            value={values.expirationDate}
+                                        />
+                                    )}
+                                </Row>
+                                <Row className="mb-2">
+                                    {values.restrictionToggle && guilds && (
+                                        <ul
+                                            className="list-inline-scroll list-unstyled d-flex overflow-x-scroll overflow-y-hidden"
+                                            style={{ height: '90px' }}
+                                        >
+                                            {guilds.length ? (
+                                                guilds.map((guild) => (
+                                                    <li
+                                                        key={guild.id}
+                                                        className="list-inline-item d-flex brightness-effect"
+                                                        style={
+                                                            values.guildId === guild.id
+                                                                ? {
+                                                                      border: 'solid black 2px',
+                                                                      borderRadius: '5px',
+                                                                      padding: '2px',
+                                                                  }
+                                                                : {
+                                                                      border: 'solid transparent 2px',
+                                                                      borderRadius: '5px',
+                                                                      padding: '2px',
+                                                                  }
+                                                        }
+                                                        onClick={() =>
+                                                            setFieldValue(
+                                                                'guildId',
+                                                                guild.id === values.guildId ? null : guild.id
+                                                            )
+                                                        }
+                                                    >
+                                                        <img
+                                                            width={65}
+                                                            height={65}
+                                                            src={
+                                                                guild.icon
+                                                                    ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
+                                                                    : '/discord.svg'
+                                                            }
+                                                            alt="server name"
+                                                            style={{
+                                                                borderRadius: '50%',
+                                                                marginRight: '2px',
+                                                            }}
+                                                        />
+                                                        <div
+                                                            className="text-nowrap flex-grow-1 d-flex align-items-center justify-content-center"
+                                                            style={{ height: '65px' }}
+                                                        >
+                                                            {guild.name}
+                                                        </div>
+                                                    </li>
+                                                ))
+                                            ) : (
+                                                <div className="text-danger justify-content-center align-content-center w-100">
+                                                    <u>no servers...</u>
+                                                </div>
+                                            )}
+                                        </ul>
+                                    )}
+                                </Row>
+                                <Row className="mb-2">
+                                    <Form.Group as={Col} controlId="query">
+                                        <Form.Label>Search Movies</Form.Label>
+                                        <InputGroup hasValidation>
+                                            <Form.Control
+                                                type="text"
+                                                aria-describedby="inputGroupPrepend"
+                                                name="query"
+                                                value={values.query}
+                                                onChange={(change) => {
+                                                    setQuery(change.target.value);
+                                                    handleChange(change);
+                                                }}
+                                                isInvalid={!!errors.query}
+                                            />
+                                            <Button
+                                                onClick={async () => {
+                                                    try {
+                                                        const res = await ky.get(
+                                                            `/api/search?query=${values.query}&page=${page}`
+                                                        );
+                                                        const searchRes: SearchResult = await res.json();
+
+                                                        if (
+                                                            searchRes.total_results == undefined ||
+                                                            searchRes.results == undefined ||
+                                                            searchRes.total_pages == undefined ||
+                                                            searchRes.page == undefined
+                                                        ) {
+                                                            setError('Could not search.');
+                                                            return setShowError(true);
+                                                        }
+
+                                                        setResult(searchRes);
+
+                                                        if (searchRes.total_results === 0) {
+                                                            setFieldError('query', 'no results')
+                                                        }
+                                                    } catch (err) {
+                                                        setError('Could not search.');
+                                                        setShowError(true);
+                                                    }
+                                                }}
+                                            >
+                                                Search
+                                            </Button>
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.query}
+                                            </Form.Control.Feedback>
+                                        </InputGroup>
+                                    </Form.Group>
+                                </Row>
+                                <Row>
+                                    <Pagination size="sm" className="justify-content-center">
+                                        <Pagination.First
+                                            disabled={!query.length || page === 1}
+                                            onClick={() => {
+                                                setPage(1);
+                                            }}
+                                        />
+                                        <Pagination.Prev
+                                            disabled={!query.length || page === 1}
+                                            onClick={() => {
+                                                setPage(page - 1);
+                                            }}
+                                        />
+                                        <Pagination.Item>{page}</Pagination.Item>
+                                        <Pagination.Next
+                                            disabled={!query.length || result?.total_pages === page}
+                                            onClick={() => {
+                                                setPage(page + 1);
+                                            }}
+                                        />
+                                        <Pagination.Last
+                                            disabled={
+                                                !query.length ||
+                                                !result?.total_pages ||
+                                                result?.total_pages === page
+                                            }
+                                            onClick={() => {
+                                                setPage(result!.total_pages);
+                                            }}
+                                        />
+                                    </Pagination>
+                                </Row>
+                                <Button type="submit">Create</Button>
+                                <Form.Group controlId="movies">
+                                    <InputGroup hasValidation>
+                                        <Form.Control hidden isInvalid={!!errors.movies} name="movies" />
+                                        <Form.Control.Feedback type="invalid">
+                                            {/* @ts-ignore */}
+                                            {errors.movies}
                                         </Form.Control.Feedback>
                                     </InputGroup>
                                 </Form.Group>
-                            </Row>
-                            <Row>
-                                <Pagination size="sm" className="justify-content-center">
-                                    <Pagination.First
-                                        disabled={!query.length || page === 1}
-                                        onClick={() => {
-                                            setPage(1);
-                                        }}
-                                    />
-                                    <Pagination.Prev
-                                        disabled={!query.length || page === 1}
-                                        onClick={() => {
-                                            setPage(page - 1);
-                                        }}
-                                    />
-                                    <Pagination.Item>{page}</Pagination.Item>
-                                    <Pagination.Next
-                                        disabled={!query.length || result?.total_pages === page}
-                                        onClick={() => {
-                                            setPage(page + 1);
-                                        }}
-                                    />
-                                    <Pagination.Last
-                                        disabled={
-                                            !query.length ||
-                                            !result?.total_pages ||
-                                            result?.total_pages === page
-                                        }
-                                        onClick={() => {
-                                            setPage(result!.total_pages);
-                                        }}
-                                    />
-                                </Pagination>
-                            </Row>
-                            <Button type="submit">Create</Button>
-                            <Form.Group controlId="movies">
-                                <InputGroup hasValidation>
-                                    <Form.Control hidden isInvalid={!!errors.movies} name='movies'/>
-                                    <Form.Control.Feedback type="invalid">
-                                        {/* @ts-ignore */}
-                                        {errors.movies}
-                                    </Form.Control.Feedback>
-                                </InputGroup>
-                            </Form.Group>
-                            <Row>
-                                {!result?.total_results ? (
-                                    <div className='fs-4 text-danger'>no results...</div>
-                                ) : (
+                                <Row>
                                     <div>
                                         <Col className="w-50 float-start">
                                             <ul className="list-inline-scroll list-unstyled d-flex flex-wrap align-content-center justify-content-center">
-                                                {result.results.map((movie) => {
+                                                {result?.results.map((movie) => {
                                                     return (
                                                         <li>
                                                             <img
@@ -473,10 +483,10 @@ export default function CreatePoll() {
                                             </ul>
                                         </Col>
                                     </div>
-                                )}
-                            </Row>
-                        </Form>
-                    )}
+                                </Row>
+                            </Form>
+                        );
+                    }}
                 </Formik>
             </div>
         </div>
