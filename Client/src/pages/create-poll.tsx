@@ -27,18 +27,10 @@ export default function CreatePoll() {
     const [page, setPage] = useState(1);
     const navigate = useNavigate();
 
-    const [expirationError, setExpirationError] = useState<string | null>(null);
-    const [expirationDate, setExpirationDate] = useState<Date | null>(null);
-    const [expires, setExpires] = useState(false);
-
-    const [restrictError, setRestrictError] = useState<string | null>('A server must be selected.');
     const [code, setCode] = useState<string | null>(searchParams.get('code'));
     const [guilds, setGuilds] = useState<Guild[] | null>(null);
-    const [guildId, setGuildId] = useState<string | null>();
-    const [restricted, setRestricted] = useState(false);
 
     const [result, setResult] = useState<SearchResult | null>(null);
-    const [selected, setSelected] = useState<Movie[]>([]);
     const [query, setQuery] = useState('');
 
     useEffect(() => {
@@ -75,19 +67,9 @@ export default function CreatePoll() {
     }
 
     useEffect(() => {
-        if (restricted && !guildId) {
-            setRestrictError('A server must be selected.');
-        } else if (!restricted || guildId) {
-            setRestrictError(null);
-        }
-    }, [guildId, restricted]);
-
-    useEffect(() => {
         setSearchParams({});
 
         if (!code) return;
-
-        setRestricted(true);
 
         ky.get(`/api/guilds?code=${code}`)
             .json()
@@ -97,20 +79,9 @@ export default function CreatePoll() {
             .catch(async () => {
                 setError('Could not get your servers');
                 setShowError(true);
-                setRestricted(false);
                 setCode(null);
             });
     }, []);
-
-    useEffect(() => {
-        if (expirationDate && expirationDate.valueOf() <= Date.now()) {
-            setExpirationError('Must expire in the future.');
-        } else if (!expirationDate && expires) {
-            setExpirationError('You must select an expiration date.');
-        } else {
-            setExpirationError(null);
-        }
-    }, [expirationDate, expires]);
 
     const schema = yup.object().shape({
         question: yup
@@ -118,14 +89,18 @@ export default function CreatePoll() {
             .required('Question is a required field.')
             .min(1, 'Must be at least 1 characters.')
             .max(500, 'Cannot be more than 500 characters.'),
-        query: yup.string().min(1).max(500),
+        query: yup
+            .string()
+            .min(1, 'Query must be at least 1 character.')
+            .max(500, 'Query cannot be more than 500 characters.'),
+        expirationDate: yup.date().nullable().min(new Date(), 'Expiration must be in the future.'),
+        guildId: yup.string().nullable(),
+        movies: yup
+            .array<Movie>()
+            .required('You must select movies.')
+            .min(2, 'You must select at least 2 movies.')
+            .max(50, 'You cannot select more than 50 movies.'),
     });
-
-    async function createPoll(values: { question: string }) {
-        console.log(values, guildId);
-        setSelected;
-        selected;
-    }
 
     return (
         <div className="container vh-100 vw-100 text-center align-items-center justify-content-center flex">
@@ -148,12 +123,49 @@ export default function CreatePoll() {
                 <Formik
                     validationSchema={schema}
                     validateOnChange
-                    onSubmit={createPoll}
+                    onSubmit={async (values) => {
+                        try {
+                            await ky.post('/api/polls/', {
+                                json: {
+                                    question: values.question,
+                                    expiration: values.expirationDate,
+                                    guildId: values.guildId,
+                                    authCode: code,
+                                    movies: values.movies.map((movie) => {
+                                        return { id: movie.id, posterPath: movie.poster_path, name: movie.title };
+                                    }),
+                                },
+                            });
+                        } catch (err) {
+                            window.scrollTo(0, 0);
+                            setError('Could not create poll.');
+                            setShowError(true);
+                        }
+                    }}
                     initialValues={{
                         question: '',
                         expirationToggle: false,
-                        restrictionToggle: false,
+                        restrictionToggle: Boolean(code),
                         query: '',
+                        expirationDate: null,
+                        guildId: null,
+                        movies: [] as Movie[],
+                    }}
+                    validate={(values) => {
+                        const errors: {
+                            expirationDate?: string;
+                            guildId?: string
+                        } = {};
+    
+                        if (values.expirationToggle && !values.expirationDate) {
+                            errors.expirationDate = 'Choose an expiration.'
+                        }
+
+                        if (values.restrictionToggle && !values.guildId) {
+                            errors.guildId = "Choose a server."
+                        }
+
+                        return errors
                     }}
                 >
                     {({ handleSubmit, handleChange, values, errors, setFieldValue }) => (
@@ -182,22 +194,20 @@ export default function CreatePoll() {
                                         type="checkbox"
                                         name="expirationToggle"
                                         onChange={() => {
-                                            setExpires(!expires);
                                             setFieldValue('expirationToggle', !values.expirationToggle);
-                                            setExpirationDate(null);
-                                            setExpirationError(null);
+                                            setFieldValue('expirationDate', null);
                                         }}
                                     />
-                                    <Form.Control hidden={true} isInvalid={Boolean(expirationError)} />
+                                    <Form.Control hidden={true} isInvalid={Boolean(errors.expirationDate)} />
                                     <Form.Control.Feedback type="invalid">
-                                        {expirationError}
+                                        {errors.expirationDate}
                                     </Form.Control.Feedback>
                                 </Form.Group>
                                 <Form.Group as={Col}>
-                                    <Form.Label className="me-1">Restricted</Form.Label>
+                                    <Form.Label className="me-1">Server Restricted</Form.Label>
                                     <Field
                                         type="checkbox"
-                                        checked={restricted}
+                                        checked={values.restrictionToggle}
                                         name="restrictionToggle"
                                         onChange={() => {
                                             if (!code) {
@@ -205,14 +215,13 @@ export default function CreatePoll() {
                                                 navigate('/auth');
                                             }
 
-                                            setRestricted(!restricted);
-                                            setRestrictError(null);
                                             setFieldValue('restrictionToggle', !values.restrictionToggle);
+                                            setFieldValue('guildId', null);
                                         }}
                                     />
-                                    <Form.Control hidden={true} isInvalid={Boolean(restrictError)} />
+                                    <Form.Control hidden={true} isInvalid={Boolean(errors.guildId)} />
                                     <Form.Control.Feedback type="invalid">
-                                        {restrictError}
+                                        {errors.guildId}
                                     </Form.Control.Feedback>
                                 </Form.Group>
                             </Row>
@@ -220,13 +229,13 @@ export default function CreatePoll() {
                                 {values.expirationToggle && (
                                     <DateTimePicker
                                         className="w-25 d-flex justify-content-center align-items-center"
-                                        onChange={(value) => setExpirationDate(value)}
-                                        value={expirationDate}
+                                        onChange={(value) => setFieldValue('expirationDate', value)}
+                                        value={values.expirationDate}
                                     />
                                 )}
                             </Row>
                             <Row className="mb-2">
-                                {restricted && guilds && (
+                                {values.restrictionToggle && guilds && (
                                     <ul
                                         className="list-inline-scroll list-unstyled d-flex overflow-x-scroll overflow-y-hidden"
                                         style={{ height: '90px' }}
@@ -237,7 +246,7 @@ export default function CreatePoll() {
                                                     key={guild.id}
                                                     className="list-inline-item d-flex brightness-effect"
                                                     style={
-                                                        guildId === guild.id
+                                                        values.guildId === guild.id
                                                             ? {
                                                                   border: 'solid black 2px',
                                                                   borderRadius: '5px',
@@ -250,7 +259,10 @@ export default function CreatePoll() {
                                                               }
                                                     }
                                                     onClick={() =>
-                                                        setGuildId(guild.id === guildId ? null : guild.id)
+                                                        setFieldValue(
+                                                            'guildId',
+                                                            guild.id === values.guildId ? null : guild.id
+                                                        )
                                                     }
                                                 >
                                                     <img
@@ -364,9 +376,18 @@ export default function CreatePoll() {
                                     />
                                 </Pagination>
                             </Row>
+                            <Form.Group controlId="movies">
+                                <InputGroup hasValidation>
+                                    <Form.Control hidden isInvalid={!!errors.movies} name='movies'/>
+                                    <Form.Control.Feedback type="invalid">
+                                        {/* @ts-ignore */}
+                                        {errors.movies}
+                                    </Form.Control.Feedback>
+                                </InputGroup>
+                            </Form.Group>
                             <Row>
                                 {!result?.total_results ? (
-                                    <div>no results...</div>
+                                    <div className='fs-4 text-danger'>no results...</div>
                                 ) : (
                                     <div>
                                         <Col className="w-50 float-start">
@@ -376,15 +397,8 @@ export default function CreatePoll() {
                                                         <li>
                                                             <img
                                                                 onClick={() => {
-                                                                    if (selected.length === 50) {
-                                                                        setError('Cannot add more than 50 movies.');
-                                                                        setShowError(true);
-                                                                        window.scrollTo(0, 0)
-                                                                        return
-                                                                    }
-
-                                                                    setSelected((s) => [
-                                                                        ...new Set([...s, movie]),
+                                                                    setFieldValue('movies', [
+                                                                        ...new Set([...values.movies, movie]),
                                                                     ]);
                                                                 }}
                                                                 width="150px"
@@ -415,13 +429,16 @@ export default function CreatePoll() {
                                         </Col>
                                         <Col className="w-50 float-end">
                                             <ul className="list-inline-scroll list-unstyled d-flex flex-wrap align-content-center justify-content-center">
-                                                {selected.map((movie) => {
+                                                {values.movies.map((movie) => {
                                                     return (
                                                         <li>
                                                             <img
                                                                 onClick={() =>
-                                                                    setSelected((s) =>
-                                                                        s.filter((m) => m.id !== movie.id)
+                                                                    setFieldValue(
+                                                                        'movies',
+                                                                        values.movies.filter(
+                                                                            (m) => m.id !== movie.id
+                                                                        )
                                                                     )
                                                                 }
                                                                 width="150px"
