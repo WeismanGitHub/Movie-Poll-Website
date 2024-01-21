@@ -49,7 +49,8 @@ public class PollsController : ControllerBase {
 			}
 
 			var utils = new Utils(_settings);
-			var guilds = await utils.GetGuilds(input.AuthCode);
+			var accessToken = await utils.GetAccessToken(input.AuthCode);
+			var guilds = await utils.GetGuilds(accessToken);
 
 			if (!guilds.Any(guild => guild.id == input.GuildId)) {
 				return BadRequest("You must be in the server to restrict this poll.");
@@ -122,7 +123,8 @@ public class PollsController : ControllerBase {
 			return BadRequest("Missing auth code.");
 		}
 
-		var user = await utils.GetUser(vote.AuthCode);
+		var accessToken = await utils.GetAccessToken(vote.AuthCode);
+		var user = await utils.GetUser(accessToken);
 
 		if (user == null) {
 			return Unauthorized("Could not get your account.");
@@ -143,7 +145,7 @@ public class PollsController : ControllerBase {
 		}
 
 		if (poll.GuildId != null) {
-			var guilds = await utils.GetGuilds(vote.AuthCode);
+			var guilds = await utils.GetGuilds(accessToken);
 
 			if (!guilds.Any(guild => guild.id == poll.GuildId)) {
 				return BadRequest("This poll is restricted to a server that you aren't in.");

@@ -20,7 +20,8 @@ public class MiscController : ControllerBase {
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 	public async Task<IActionResult> GetGuilds([FromQuery(Name = "code")] string authCode) {
 		var utils = new Utils(_settings);
-		var guilds = await utils.GetGuilds(authCode);
+		var accessToken = await utils.GetAccessToken(authCode);
+		var guilds = await utils.GetGuilds(accessToken);
 
 		return Ok(guilds);
 	}

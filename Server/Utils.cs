@@ -22,7 +22,7 @@ public class Utils {
 		public List<string> features { get; set; }
 	}
 
-	private async Task<string> getAccessToken(string authCode) {
+	public async Task<string> GetAccessToken(string authCode) {
 		var client = new HttpClient();
 
 		var reqBody = new Dictionary<string, string>() {
@@ -44,10 +44,8 @@ public class Utils {
 		return JsonDocument.Parse(content).RootElement.GetString("access_token");
 	}
 
-	public async Task<List<Guild>> GetGuilds(string authCode) {
+	public async Task<List<Guild>> GetGuilds(string accessToken) {
 		var client = new HttpClient();
-				
-		var accessToken = await getAccessToken(authCode);
 
 		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 		var guildsRes = await client.GetAsync("https://discord.com/api/users/@me/guilds");
@@ -65,9 +63,8 @@ public class Utils {
 		// there are more properties, but i dont need them
 	}
 
-	public async Task<User> GetUser(string authCode) {
+	public async Task<User> GetUser(string accessToken) {
 		var client = new HttpClient();
-		var accessToken = await getAccessToken(authCode);
 
 		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 		var userRes = await client.GetAsync("https://discord.com/api/users/@me/");
