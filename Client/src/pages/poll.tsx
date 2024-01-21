@@ -1,5 +1,5 @@
-import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
-import { ToastContainer, Toast, Row } from 'react-bootstrap';
+import { ToastContainer, Toast, Row, Button, Modal } from 'react-bootstrap';
+import { useSearchParams, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import ky from 'ky';
 
@@ -21,13 +21,12 @@ type Poll = {
 
 export default function Poll() {
     const [searchParams, setSearchParams] = useSearchParams();
+    const [code] = useState<string | null>(searchParams.get('code'));
     const [error, setError] = useState<string | null>(null);
-    const [code, setCode] = useState<string | null>(null);
     const [showError, setShowError] = useState(false);
-    const navigate = useNavigate();
 
     const [poll, setPoll] = useState<Poll | undefined>(undefined);
-    const [selected, setSelected] = useState<string | null>(null);
+    const [selected, setSelected] = useState<Movie | null>(null);
     const { pollId } = useParams();
 
     useEffect(() => {
@@ -39,13 +38,12 @@ export default function Poll() {
                 setPoll(res as Poll);
             })
             .catch(async () => {
-                setError('Could not get your servers');
+                setError('Could not get poll.');
                 setShowError(true);
-                setCode(null);
             });
     }, []);
 
-    async function vote(movieId: string) {
+    async function vote() {
         // try {
         //     await ky.post('/api/polls/', {
         //         json: {
@@ -74,6 +72,33 @@ export default function Poll() {
                 </Toast>
             </ToastContainer>
 
+            <Modal show={selected !== null}>
+                <Modal.Dialog>
+                    <Modal.Header closeButton onClick={() => setSelected(null)}></Modal.Header>
+                    <Modal.Body>
+                        <div>
+                            <img
+                                width="150px"
+                                className="list-inline-item"
+                                src={`https://image.tmdb.org/t/p/original${selected!.poster_path}`}
+                                alt="movie poster"
+                                style={{
+                                    borderRadius: '5px',
+                                    margin: '2px',
+                                    cursor: 'pointer',
+                                }}
+                            />
+                            <a href={`https://www.themoviedb.org/movie/${selected!.id}`}>
+                                <div style={{ width: '150px' }} className="text-wrap">
+                                    {selected!.title} {selected!.release_date.slice(0, 4)}
+                                </div>
+                            </a>
+                        </div>
+                        <Button onClick={vote}>Vote</Button>
+                    </Modal.Body>
+                </Modal.Dialog>
+            </Modal>
+
             <div className="center flex-column align-content-center p-2 justify-content-center align-items-center">
                 <Row className="w-50 float-end">
                     <ul className="list-inline-scroll list-unstyled d-flex flex-wrap align-content-center justify-content-center">
@@ -81,7 +106,9 @@ export default function Poll() {
                             return (
                                 <li>
                                     <img
-                                        onClick={() => setSelected(movie.id)}
+                                        onClick={() => {
+                                            code ? setSelected(movie) : null
+                                        }}
                                         width="150px"
                                         className="list-inline-item"
                                         src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
@@ -89,7 +116,7 @@ export default function Poll() {
                                         style={{
                                             borderRadius: '5px',
                                             margin: '2px',
-                                            cursor: 'pointer',
+                                            cursor: code ? 'pointer' : 'default',
                                         }}
                                     />
                                     <a href={`https://www.themoviedb.org/movie/${movie.id}`}>
