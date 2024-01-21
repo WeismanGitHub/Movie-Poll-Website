@@ -156,6 +156,10 @@ export default function CreatePoll() {
                             expirationDate?: string;
                             guildId?: string
                         } = {};
+
+                        if (values.movies.length > 50) {
+                            window.scrollTo(0, 0);
+                        }
     
                         if (values.expirationToggle && !values.expirationDate) {
                             errors.expirationDate = 'Choose an expiration.'
@@ -376,6 +380,7 @@ export default function CreatePoll() {
                                     />
                                 </Pagination>
                             </Row>
+                            <Button type="submit">Create</Button>
                             <Form.Group controlId="movies">
                                 <InputGroup hasValidation>
                                     <Form.Control hidden isInvalid={!!errors.movies} name='movies'/>
@@ -470,7 +475,6 @@ export default function CreatePoll() {
                                     </div>
                                 )}
                             </Row>
-                            <Button type="submit">Create</Button>
                         </Form>
                     )}
                 </Formik>
