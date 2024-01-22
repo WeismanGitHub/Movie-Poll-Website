@@ -97,11 +97,11 @@ public class PollsController : ControllerBase {
 		public string release_date { get; set; }
 	}
 
-	[HttpGet(Name = "GetPoll")]
+	[HttpGet("/{id}", Name = "GetPoll")]
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-	public async Task<IActionResult> GetPoll(Guid id) {
+	public async Task<IActionResult> GetPoll([FromRoute] Guid id) {
 		using var db = new LbPollContext();
 		var client = new HttpClient();
 		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _settings.TmdbKey);
@@ -155,7 +155,7 @@ public class PollsController : ControllerBase {
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	[ProducesResponseType(StatusCodes.Status403Forbidden)]
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-	public async Task<IActionResult> Vote(Guid id, VoteDTO vote) {
+	public async Task<IActionResult> Vote([FromRoute] Guid id, [FromBody] VoteDTO vote) {
 		using var db = new LbPollContext();
 		var discord = new DiscordOauth2(_settings);
 		var client = new HttpClient();
