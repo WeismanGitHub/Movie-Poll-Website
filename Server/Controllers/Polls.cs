@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Database;
 using server;
 using API;
+using System.Net.Http.Headers;
+using static server.DiscordOauth2;
+using System.Text.Json;
 
 namespace Movie_Poll_Website.Server.Controllers;
 
@@ -22,24 +25,24 @@ public class PollsController : ControllerBase {
 		public string? GuildId { get; set; }
 		public string? AuthCode { get; set; }
 		[Required, MinLength(2), MaxLength(50)]
-		public required List<Movie> Movies {  get; set; }
+		public required List<string> MovieIds {  get; set; }
 	}
 
 	[HttpPost(Name = "CreatePoll")]
 	[ProducesResponseType(StatusCodes.Status201Created)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-	public async Task<IActionResult> CreatePoll(CreatePollDTO input) {
+	public async Task<IActionResult> CreatePoll([FromBody] CreatePollDTO input) {
 		using var db = new LbPollContext();
 		var client = new HttpClient();
 
 		if (input.Expiration != null && input.Expiration <= DateTime.Now) {
 			return BadRequest("Expiration must be greater than the current time.");
-		} else if (input.Movies.Count < 2 || input.Movies.Count > 50) {
+		} else if (input.MovieIds.Count < 2 || input.MovieIds.Count > 50) {
 			return BadRequest("Selected movies must be between 2 and 50.");
 		}
 
-		if (input.Movies.Any(Movie => Movie.Id.Length > 50)) {
+		if (input.MovieIds.Any(id => id.Length > 50)) {
 			return BadRequest("Invalid Ids.");
 		}
 
@@ -48,9 +51,9 @@ public class PollsController : ControllerBase {
 				return BadRequest("You must be logged in to restrict a poll to a server.");
 			}
 
-			var utils = new Utils(_settings);
-			var accessToken = await utils.GetAccessToken(input.AuthCode);
-			var guilds = await utils.GetGuilds(accessToken);
+			var discord = new DiscordOauth2(_settings);
+			var accessToken = await discord.GetAccessToken(input.AuthCode);
+			var guilds = await discord.GetGuilds(accessToken);
 
 			if (!guilds.Any(guild => guild.id == input.GuildId)) {
 				return BadRequest("You must be in the server to restrict this poll.");
@@ -61,7 +64,7 @@ public class PollsController : ControllerBase {
 			Question = input.Question,
 			Expiration = input.Expiration,
 			GuildId = input.GuildId,
-			Movies = input.Movies,
+			MovieIds = input.MovieIds,
 		};
 
 		db.Add(poll);
@@ -70,13 +73,28 @@ public class PollsController : ControllerBase {
 		return Created($"/polls/{poll.Id}", poll.Id);
     }
 
+	public class Movie {
+		public string Id { get; set; }
+		public string PosterPath { get; set; }
+		public string ReleaseDate { get; set; }
+		public string Title { get; set; }
+	}
+
 	public class PollResponse {
 		public required string Question { get; set; }
 		public required IEnumerable<string> Votes {  get; set; }
-		public required List<Movie> Movies {  get; set; }
+		public required ICollection<Movie> Movies {  get; set; }
 		public required DateTime CreatedAt { get; set; }
 		public required bool ServerRestricted { get; set; }
 		public DateTime? Expiration { get; set; }
+	}
+
+	private class MovieDetails {
+		// there are more details but I don't need them
+		public int id { get; set; }
+		public string title { get; set; }
+		public string poster_path {  get; set; }
+		public string release_date { get; set; }
 	}
 
 	[HttpGet(Name = "GetPoll")]
@@ -86,18 +104,41 @@ public class PollsController : ControllerBase {
 	public async Task<IActionResult> GetPoll(Guid id) {
 		using var db = new LbPollContext();
 		var client = new HttpClient();
+		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _settings.TmdbKey);
 
 		var poll = await db.FindAsync<Poll>(id);
 
 		if (poll == null) {
 			return NotFound("Could not find poll.");
 		}
+
+		var movies = await Task.WhenAll(poll.MovieIds.Select(async (id) => {
+			var res = await client.GetAsync($"https://api.themoviedb.org/3/movie/{id}");
+
+			if (!res.IsSuccessStatusCode) {
+				return new Movie {
+					Id = id,
+					PosterPath = null,
+					Title = null,
+					ReleaseDate = null,
+				};
+			}
+
+			var movieDetails = JsonSerializer.Deserialize<MovieDetails>(await res.Content.ReadAsStringAsync());
+
+			return new Movie {
+				Id = id,
+				PosterPath = movieDetails?.poster_path,
+				Title = movieDetails?.title,
+				ReleaseDate = movieDetails?.release_date
+			};
+		}));
 		
 		return Ok(new PollResponse() {
 			Question = poll.Question,
 			Votes = poll.Votes.Select(vote => vote.MovieId),
 			Expiration = poll.Expiration,
-			Movies = poll.Movies,
+			Movies = movies,
 			ServerRestricted = poll.GuildId != null,
 			CreatedAt = poll.CreatedAt,
 		});
@@ -116,15 +157,15 @@ public class PollsController : ControllerBase {
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 	public async Task<IActionResult> Vote(Guid id, VoteDTO vote) {
 		using var db = new LbPollContext();
-		var utils = new Utils(_settings);
+		var discord = new DiscordOauth2(_settings);
 		var client = new HttpClient();
 
 		if (vote.AuthCode == null) {
 			return BadRequest("Missing auth code.");
 		}
 
-		var accessToken = await utils.GetAccessToken(vote.AuthCode);
-		var user = await utils.GetUser(accessToken);
+		var accessToken = await discord.GetAccessToken(vote.AuthCode);
+		var user = await discord.GetUser(accessToken);
 
 		if (user == null) {
 			return Unauthorized("Could not get your account.");
@@ -136,7 +177,7 @@ public class PollsController : ControllerBase {
 			return NotFound("Could not find poll.");
 		}
 
-		if (!poll.Movies.Any((Movie) => Movie.Id == vote.MovieId)) {
+		if (!poll.MovieIds.Any((id) => id == vote.MovieId)) {
 			return BadRequest("This movie isn't an option.");
 		}
 
@@ -145,7 +186,7 @@ public class PollsController : ControllerBase {
 		}
 
 		if (poll.GuildId != null) {
-			var guilds = await utils.GetGuilds(accessToken);
+			var guilds = await discord.GetGuilds(accessToken);
 
 			if (!guilds.Any(guild => guild.id == poll.GuildId)) {
 				return BadRequest("This poll is restricted to a server that you aren't in.");
