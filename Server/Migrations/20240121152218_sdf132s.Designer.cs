@@ -3,6 +3,7 @@ using System;
 using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,12 +11,39 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace server.Migrations
 {
     [DbContext(typeof(LbPollContext))]
-    partial class LbPollContextModelSnapshot : ModelSnapshot
+    [Migration("20240121152218_sdf132s")]
+    partial class sdf132s
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
+
+            modelBuilder.Entity("Database.Movie", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("PollId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PosterPath")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PollId");
+
+                    b.ToTable("Movie");
+                });
 
             modelBuilder.Entity("Database.Poll", b =>
                 {
@@ -27,11 +55,6 @@ namespace server.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("GuildId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("MovieIds")
-                        .IsRequired()
-                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Question")
@@ -53,7 +76,7 @@ namespace server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("PollId")
+                    b.Property<Guid?>("PollId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("UserId");
@@ -63,19 +86,24 @@ namespace server.Migrations
                     b.ToTable("Vote");
                 });
 
+            modelBuilder.Entity("Database.Movie", b =>
+                {
+                    b.HasOne("Database.Poll", null)
+                        .WithMany("Movies")
+                        .HasForeignKey("PollId");
+                });
+
             modelBuilder.Entity("Database.Vote", b =>
                 {
-                    b.HasOne("Database.Poll", "Poll")
+                    b.HasOne("Database.Poll", null)
                         .WithMany("Votes")
-                        .HasForeignKey("PollId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Poll");
+                        .HasForeignKey("PollId");
                 });
 
             modelBuilder.Entity("Database.Poll", b =>
                 {
+                    b.Navigation("Movies");
+
                     b.Navigation("Votes");
                 });
 #pragma warning restore 612, 618
