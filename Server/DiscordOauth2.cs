@@ -5,10 +5,10 @@ using API;
 
 namespace server;
 
-public class Utils {
+public class DiscordOauth2 {
 	private readonly Settings _settings;
 
-	public Utils(Settings settings) {
+	public DiscordOauth2(Settings settings) {
 		_settings = settings;
 	}
 
