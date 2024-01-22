@@ -18,7 +18,7 @@ public class Poll {
 	[Required, MaxLength(500), MinLength(1)]
 	public required string Question { get; set; }
 	[Required]
-	public ICollection<Vote> Votes { get; set; }
+	public List<Vote> Votes { get; set; } = new();
 	public string? GuildId { get; set; }
 	public DateTime CreatedAt { get; } = DateTime.Now;
 	public DateTime? Expiration { get; set; }
