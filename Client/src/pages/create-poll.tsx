@@ -125,23 +125,20 @@ export default function CreatePoll() {
                     validateOnChange
                     onSubmit={async (values) => {
                         try {
-                            await ky.post('/api/polls/', {
-                                json: {
-                                    question: values.question,
-                                    expiration: values.expirationDate,
-                                    guildId: values.guildId,
-                                    authCode: code,
-                                    movies: values.movies.map((movie) => {
-                                        return {
-                                            id: movie.id,
-                                            posterPath: movie.poster_path,
-                                            name: movie.title,
-                                        };
-                                    }),
-                                },
-                            });
+                            var id = await ky
+                                .post('/api/polls/', {
+                                    json: {
+                                        question: values.question,
+                                        expiration: values.expirationDate,
+                                        guildId: values.restrictionToggle ? values.guildId : null,
+                                        authCode: values.restrictionToggle ? code : null,
+                                        movieIds: values.movies.map((movie) => String(movie.id)),
+                                    },
+                                })
+                                .json();
+
+                            navigate(`/polls/${id}`);
                         } catch (err) {
-                            console.log(err);
                             window.scrollTo(0, 0);
                             setError('Could not create poll.');
                             setShowError(true);
@@ -344,7 +341,7 @@ export default function CreatePoll() {
                                                         setResult(searchRes);
 
                                                         if (searchRes.total_results === 0) {
-                                                            setFieldError('query', 'no results')
+                                                            setFieldError('query', 'no results');
                                                         }
                                                     } catch (err) {
                                                         setError('Could not search.');
