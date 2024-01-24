@@ -1,11 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http.Headers;
+using System.Text.Json;
 using Database;
 using server;
 using API;
-using System.Net.Http.Headers;
-using static server.DiscordOauth2;
-using System.Text.Json;
 
 namespace Movie_Poll_Website.Server.Controllers;
 
@@ -23,7 +22,7 @@ public class PollsController : ControllerBase {
 		public required string Question { get; set; }
 		public DateTime? Expiration { get; set; }
 		public string? GuildId { get; set; }
-		public string? AuthCode { get; set; }
+		public string? AccessToken { get; set; }
 		[Required, MinLength(2), MaxLength(50)]
 		public required List<string> MovieIds {  get; set; }
 	}
@@ -47,13 +46,12 @@ public class PollsController : ControllerBase {
 		}
 
 		if (input.GuildId != null) {
-			if (input.AuthCode == null) {
+			if (input.AccessToken == null) {
 				return BadRequest("You must be logged in to restrict a poll to a server.");
 			}
 
 			var discord = new DiscordOauth2(_settings);
-			var accessToken = await discord.GetAccessToken(input.AuthCode);
-			var guilds = await discord.GetGuilds(accessToken);
+			var guilds = await discord.GetGuilds(input.AccessToken);
 
 			if (!guilds.Any(guild => guild.id == input.GuildId)) {
 				return BadRequest("You must be in the server to restrict this poll.");
