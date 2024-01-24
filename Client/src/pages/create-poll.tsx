@@ -24,7 +24,7 @@ export default function CreatePoll() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [error, setError] = useState<string | null>(null);
     const [showError, setShowError] = useState(false);
-    const code = searchParams.get('code')
+    const code = searchParams.get('code');
     const [page, setPage] = useState(1);
     const navigate = useNavigate();
 
@@ -62,7 +62,7 @@ export default function CreatePoll() {
                 setResult(searchRes);
             })
             .catch((err) => {
-                console.log(err)
+                console.log(err);
                 setError('Could not search.');
                 setShowError(true);
             });
@@ -77,12 +77,12 @@ export default function CreatePoll() {
             .json()
             .then((res) => {
                 // @ts-ignore
-                setToken(res.accessToken)
+                setToken(res.accessToken);
                 // @ts-ignore
                 setGuilds(res.guilds);
             })
             .catch(async (err) => {
-                console.log(err)
+                console.log(err);
                 setError('Could not get your servers');
                 setShowError(true);
             });
