@@ -24,10 +24,11 @@ export default function CreatePoll() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [error, setError] = useState<string | null>(null);
     const [showError, setShowError] = useState(false);
+    const code = searchParams.get('code')
     const [page, setPage] = useState(1);
     const navigate = useNavigate();
 
-    const [code, setCode] = useState<string | null>(searchParams.get('code'));
+    const [token, setToken] = useState<string | null>(null);
     const [guilds, setGuilds] = useState<Guild[] | null>(null);
 
     const [result, setResult] = useState<SearchResult | null>(null);
@@ -60,7 +61,8 @@ export default function CreatePoll() {
 
                 setResult(searchRes);
             })
-            .catch(() => {
+            .catch((err) => {
+                console.log(err)
                 setError('Could not search.');
                 setShowError(true);
             });
@@ -71,15 +73,18 @@ export default function CreatePoll() {
 
         if (!code) return;
 
-        ky.get(`/api/guilds?code=${code}`)
+        ky.get(`/api/oauth?code=${code}`)
             .json()
             .then((res) => {
-                setGuilds(res as Guild[]);
+                // @ts-ignore
+                setToken(res.accessToken)
+                // @ts-ignore
+                setGuilds(res.guilds);
             })
-            .catch(async () => {
+            .catch(async (err) => {
+                console.log(err)
                 setError('Could not get your servers');
                 setShowError(true);
-                setCode(null);
             });
     }, []);
 
@@ -131,7 +136,7 @@ export default function CreatePoll() {
                                         question: values.question,
                                         expiration: values.expirationDate,
                                         guildId: values.restrictionToggle ? values.guildId : null,
-                                        authCode: values.restrictionToggle ? code : null,
+                                        accessToken: values.restrictionToggle ? token : null,
                                         movieIds: values.movies.map((movie) => String(movie.id)),
                                     },
                                 })
@@ -220,7 +225,7 @@ export default function CreatePoll() {
                                             checked={values.restrictionToggle}
                                             name="restrictionToggle"
                                             onChange={() => {
-                                                if (!code) {
+                                                if (!token) {
                                                     localStorage.setItem('redirect', 'create');
                                                     navigate('/auth');
                                                 }
