@@ -5,6 +5,7 @@ using System.Text.Json;
 using Database;
 using server;
 using API;
+using Microsoft.EntityFrameworkCore;
 
 namespace Movie_Poll_Website.Server.Controllers;
 
@@ -87,6 +88,16 @@ public class PollsController : ControllerBase {
 		public DateTime? Expiration { get; set; }
 	}
 
+	private class PollWithoutVoters {
+		public required Guid Id;
+		public required string Question;
+		public required List<string> Votes;
+		public string? GuildId;
+		public required DateTime CreatedAt;
+		public DateTime? Expiration;
+		public List<string> MovieIds;
+	}
+
 	private class MovieDetails {
 		// there are more details but I don't need them
 		public int id { get; set; }
@@ -104,7 +115,17 @@ public class PollsController : ControllerBase {
 		var client = new HttpClient();
 		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _settings.TmdbKey);
 
-		var poll = await db.FindAsync<Poll>(id);
+		var poll = await db.Polls
+			.Where(p => p.Id == id)
+			.Select(p => new PollWithoutVoters {
+				Question = p.Question,
+				Expiration = p.Expiration,
+				CreatedAt = p.CreatedAt,
+				GuildId = p.GuildId,
+				Id = p.Id,
+				MovieIds = p.MovieIds,
+				Votes = p.Votes.Select(vote => vote.MovieId).ToList(),
+			}).FirstOrDefaultAsync();
 
 		if (poll == null) {
 			return NotFound("Could not find poll.");
@@ -134,7 +155,7 @@ public class PollsController : ControllerBase {
 		
 		return Ok(new PollResponse() {
 			Question = poll.Question,
-			Votes = poll.Votes.Select(vote => vote.MovieId),
+			Votes = poll.Votes,
 			Expiration = poll.Expiration,
 			Movies = movies,
 			ServerRestricted = poll.GuildId != null,
@@ -147,7 +168,7 @@ public class PollsController : ControllerBase {
 		public required string MovieId { get; set; }
 	}
 
-	[HttpPost("vote/{id}", Name = "Vote")]
+	[HttpPost("{id}/vote", Name = "Vote")]
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
