@@ -1,13 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Headers;
 using System.Net;
-using server;
 using API;
 
 namespace Movie_Poll_Website.Server.Controllers;
 
 [ApiController]
-[Route("api")]
+[Route("api/tmdb")]
 public class TMDbController : ControllerBase {
 	private readonly Settings _settings;
 
