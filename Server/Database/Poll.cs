@@ -20,7 +20,7 @@ public class Poll {
 	[Required]
 	public List<Vote> Votes { get; set; } = new();
 	public string? GuildId { get; set; }
-	public DateTime CreatedAt { get; } = DateTime.Now;
+	public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 	public DateTime? Expiration { get; set; }
 	[Required, MinLength(2), MaxLength(50)]
 	public List<string> MovieIds { get; set; } = new();
