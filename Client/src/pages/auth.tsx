@@ -1,4 +1,5 @@
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Button } from 'react-bootstrap';
 import { useEffect } from 'react';
 
 function generateState() {
@@ -41,10 +42,10 @@ export default function Auth() {
     }, []);
 
     return (
-        <>
-            <a className="" href={import.meta.env.VITE_OAUTH_URL + `&state=${btoa(randomString)}`}>
+        <div className="container d-flex vh-100 vw-100 align-items-center justify-content-center flex-column text-center">
+            <Button href={import.meta.env.VITE_OAUTH_URL + `&state=${btoa(randomString)}`} className="btn-lg">
                 Authorize
-            </a>
-        </>
+            </Button>
+        </div>
     );
 }
