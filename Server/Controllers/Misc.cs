@@ -15,15 +15,23 @@ public class MiscController : ControllerBase {
 		_settings = settings;
 	}
 
-	[HttpGet("guilds", Name = "GetGuilds")]
+	public class OAuthData {
+		public List<DiscordOauth2.Guild> Guilds { get; set; }
+		public string AccessToken { get; set; }
+	}
+
+	[HttpGet("oauth", Name = "GetOAuthData")]
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-	public async Task<IActionResult> GetGuilds([FromQuery(Name = "code")] string authCode) {
+	public async Task<IActionResult> GetOAuthData([FromQuery(Name = "code")] string authCode) {
 		var discord = new DiscordOauth2(_settings);
 		var accessToken = await discord.GetAccessToken(authCode);
 		var guilds = await discord.GetGuilds(accessToken);
 
-		return Ok(guilds);
+		return Ok(new OAuthData {
+			Guilds = guilds,
+			AccessToken = accessToken
+		});
 	}
 
 	[HttpGet("search", Name = "SearchMovie")]
