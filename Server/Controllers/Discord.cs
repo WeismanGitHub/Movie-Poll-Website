@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Net.Http.Headers;
-using System.Net;
 using server;
 using API;
 
