@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Web.Http;
 using API;
 
 namespace server;
@@ -34,27 +35,31 @@ public class DiscordOauth2 {
 			{ "scope", "identify guilds" },
 		};
 
-		var oauthRes = await client.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(reqBody));
+		var res = await client.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(reqBody));
+		
+		var content = await res.Content.ReadAsStringAsync();
+		var json = JsonDocument.Parse(content).RootElement;
 
-		if (!oauthRes.IsSuccessStatusCode) {
-			throw new Exception("Fetching access token failed.");
+		if (!res.IsSuccessStatusCode) {
+			throw new Exception(json.GetString("error_description"));
 		}
 
-		var content = await oauthRes.Content.ReadAsStringAsync();
-		return JsonDocument.Parse(content).RootElement.GetString("access_token");
+		return json.GetString("access_token");
 	}
 
 	public async Task<List<Guild>> GetGuilds(string accessToken) {
 		var client = new HttpClient();
-
 		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-		var guildsRes = await client.GetAsync("https://discord.com/api/users/@me/guilds");
 
-		if (!guildsRes.IsSuccessStatusCode) {
-			throw new Exception("Fetching guilds failed.");
+		var res = await client.GetAsync("https://discord.com/api/users/@me/guilds");
+		var content = await res.Content.ReadAsStringAsync();
+
+		if (!res.IsSuccessStatusCode) {
+			Console.WriteLine(content);
+			throw new Exception(JsonDocument.Parse(content).RootElement.GetString("message"));
 		}
 
-		var guilds = JsonSerializer.Deserialize<List<Guild>>(await guildsRes.Content.ReadAsStringAsync());
+		var guilds = JsonSerializer.Deserialize<List<Guild>>(content);
 		return guilds!;
 	}
 
@@ -67,13 +72,14 @@ public class DiscordOauth2 {
 		var client = new HttpClient();
 
 		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-		var userRes = await client.GetAsync("https://discord.com/api/users/@me/");
+		var res = await client.GetAsync("https://discord.com/api/users/@me/");
+		var content = await res.Content.ReadAsStringAsync();
 
-		if (!userRes.IsSuccessStatusCode) {
-			throw new Exception("Fetching guilds failed.");
+		if (!res.IsSuccessStatusCode) {
+			throw new Exception(JsonDocument.Parse(content).RootElement.GetString("error_description"));
 		}
 
-		var guilds = JsonSerializer.Deserialize<User>(await userRes.Content.ReadAsStringAsync());
-		return guilds!;
+		var user = JsonSerializer.Deserialize<User>(content);
+		return user!;
 	}
 }
