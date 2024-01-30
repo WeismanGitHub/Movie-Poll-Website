@@ -1,11 +1,11 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Database;
 using server;
 using API;
-using Microsoft.EntityFrameworkCore;
 
 namespace Movie_Poll_Website.Server.Controllers;
 
@@ -164,7 +164,7 @@ public class PollsController : ControllerBase {
 	}
 
 	public class VoteDTO {
-		public required string AuthCode { get; set; }
+		public required string AccessToken { get; set; }
 		public required string MovieId { get; set; }
 	}
 
@@ -174,17 +174,12 @@ public class PollsController : ControllerBase {
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	[ProducesResponseType(StatusCodes.Status403Forbidden)]
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-	public async Task<IActionResult> Vote([FromRoute] Guid id, [FromBody] VoteDTO vote) {
+	public async Task<IActionResult> Vote([FromRoute] Guid id, [FromBody] VoteDTO body) {
 		using var db = new LbPollContext();
 		var discord = new DiscordOauth2(_settings);
 		var client = new HttpClient();
 
-		if (vote.AuthCode == null) {
-			return BadRequest("Missing auth code.");
-		}
-
-		var accessToken = await discord.GetAccessToken(vote.AuthCode);
-		var user = await discord.GetUser(accessToken);
+		var user = await discord.GetUser(body.AccessToken);
 
 		if (user == null) {
 			return Unauthorized("Could not get your account.");
@@ -196,7 +191,7 @@ public class PollsController : ControllerBase {
 			return NotFound("Could not find poll.");
 		}
 
-		if (!poll.MovieIds.Any((id) => id == vote.MovieId)) {
+		if (!poll.MovieIds.Any((id) => id == body.MovieId)) {
 			return BadRequest("This movie isn't an option.");
 		}
 
@@ -205,7 +200,7 @@ public class PollsController : ControllerBase {
 		}
 
 		if (poll.GuildId != null) {
-			var guilds = await discord.GetGuilds(accessToken);
+			var guilds = await discord.GetGuilds(body.AccessToken);
 
 			if (!guilds.Any(guild => guild.id == poll.GuildId)) {
 				return BadRequest("This poll is restricted to a server that you aren't in.");
@@ -213,9 +208,12 @@ public class PollsController : ControllerBase {
 		}
 
 		poll.Votes.Add(new() {
-			MovieId = vote.MovieId,
-			UserId = user.Id
+			Poll = poll,
+			MovieId = body.MovieId,
+			UserId = user.id
 		});
+
+		await db.SaveChangesAsync();
 
 		return Ok();
 	}
