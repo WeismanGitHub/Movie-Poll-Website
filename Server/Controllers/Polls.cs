@@ -207,11 +207,16 @@ public class PollsController : ControllerBase {
 			}
 		}
 
-		poll.Votes.Add(new() {
-			Poll = poll,
-			MovieId = body.MovieId,
-			UserId = user.id
-		});
+		try {
+			poll.Votes.Add(new() {
+				Poll = poll,
+				MovieId = body.MovieId,
+				PollId = poll.Id,
+				UserId = user.id
+			});
+		} catch(DbUpdateException ex) {
+			throw new Exception(ex.InnerException?.Message);
+		}
 
 		await db.SaveChangesAsync();
 
