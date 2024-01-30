@@ -21,27 +21,40 @@ type Poll = {
 
 export default function Poll() {
     const [searchParams, setSearchParams] = useSearchParams();
-    const [code] = useState<string | null>(searchParams.get('code'));
+    const [token, setToken] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [showError, setShowError] = useState(false);
 
+    const [voteMap, setVoteMap] = useState<Map<string, number> | null>(new Map<string, number>());
     const [poll, setPoll] = useState<Poll | undefined>(undefined);
     const [selected, setSelected] = useState<Movie | null>(null);
-    const voteMap = new Map<string, number>();
     const { pollId } = useParams();
     const navigate = useNavigate();
 
     useEffect(() => {
+        const code = searchParams.get('code')
         setSearchParams({});
+
+        if (code) {
+            ky.get(`/api/discord/token?code=${code}`).json()
+            .then(res => setToken(res as string))
+            .catch(async (err) => {
+                console.log(err);
+                setError('Could not get access token.');
+                setShowError(true);
+            });
+        }
 
         ky.get(`/api/polls/${pollId}`)
             .json()
             .then((res) => {
                 setPoll(res as Poll);
-                poll?.votes.forEach((id) => {
-                    const votes = voteMap.get(id);
-                    voteMap.set(id, votes == undefined ? 0 : votes + 1);
+                const map = new Map<string, number>();
+                (res as Poll).votes.forEach((id) => {
+                    const votes = map.get(id);
+                    map.set(id, votes == undefined ? 1 : votes + 1);
                 });
+                setVoteMap(map)
             })
             .catch(async (err) => {
                 console.log(err);
@@ -52,14 +65,17 @@ export default function Poll() {
 
     async function vote() {
         try {
-            await ky.post(`/api/polls/${selected!.id}/vote`, {
+            await ky.post(`/api/polls/${pollId}/vote`, {
                 json: {
-                    authCode: code,
+                    accessToken: token,
                     movieId: selected!.id
                 },
             });
+
+            setSelected(null)
         } catch (err) {
-            setError('Could not create poll.');
+            console.log(err)
+            setError('Could not vote.');
             setShowError(true);
         }
     }
@@ -149,7 +165,7 @@ export default function Poll() {
                             )}
                         </div>
                         <br />
-                        {code ? (
+                        {token ? (
                             <div>Click on a movie to vote!</div>
                         ) : (
                             <Button
@@ -167,14 +183,14 @@ export default function Poll() {
                 )}
                 <br />
                     <ul className="list-inline-scroll list-unstyled d-flex flex-wrap align-content-center justify-content-center">
-                        {poll?.movies
-                            .sort((a, b) => voteMap.get(a.id)! - voteMap.get(b.id)!)
+                        {(poll && voteMap) && 
+                            poll.movies.sort((a, b) => voteMap.get(a.id)! - voteMap.get(b.id)!)
                             .map((movie) => {
                                 return (
                                     <li>
                                         <img
                                             onClick={() => {
-                                                code ? setSelected(movie) : null;
+                                                token ? setSelected(movie) : null;
                                             }}
                                             width="150px"
                                             className="list-inline-item"
@@ -183,7 +199,7 @@ export default function Poll() {
                                             style={{
                                                 borderRadius: '5px',
                                                 margin: '2px',
-                                                cursor: code ? 'pointer' : 'default',
+                                                cursor: token ? 'pointer' : 'default',
                                             }}
                                         />
                                         <a href={`https://www.themoviedb.org/movie/${movie.id}`}>
