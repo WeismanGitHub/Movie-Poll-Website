@@ -45,7 +45,7 @@ export default function CreatePoll() {
     }, [page]);
 
     async function search() {
-        ky.get(`/api/search?query=${query}&page=${page}`)
+        ky.get(`/api/tmdb/search?query=${query}&page=${page}`)
             .then(async (res) => {
                 const searchRes: SearchResult = await res.json();
 
@@ -73,19 +73,18 @@ export default function CreatePoll() {
 
         if (!code) return;
 
-        ky.get(`/api/oauth?code=${code}`)
-            .json()
-            .then((res) => {
-                // @ts-ignore
-                setToken(res.accessToken);
-                // @ts-ignore
-                setGuilds(res.guilds);
-            })
-            .catch(async (err) => {
+        (async function() {
+            try {
+                const token: string = await ky.get(`/api/discord/token?code=${code}`).json()
+                const guilds: Guild[] = await ky.get(`/api/discord/guilds?token=${token!}`).json()
+                setToken(token)
+                setGuilds(guilds)
+            } catch(err) {
                 console.log(err);
                 setError('Could not get your servers');
                 setShowError(true);
-            });
+            }
+        })()
     }, []);
 
     const schema = yup.object().shape({
