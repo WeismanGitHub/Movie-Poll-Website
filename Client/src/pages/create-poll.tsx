@@ -224,13 +224,13 @@ export default function CreatePoll() {
                                             checked={values.restrictionToggle}
                                             name="restrictionToggle"
                                             onChange={() => {
-                                                if (!token) {
+                                                if (token) {
+                                                    setFieldValue('restrictionToggle', !values.restrictionToggle);
+                                                    return setFieldValue('guildId', null);
+                                                } else if (confirm("This will redirect you and you will lose all inputted data.")) {
                                                     localStorage.setItem('redirect', 'create');
-                                                    navigate('/auth');
+                                                    return navigate('/auth');
                                                 }
-
-                                                setFieldValue('restrictionToggle', !values.restrictionToggle);
-                                                setFieldValue('guildId', null);
                                             }}
                                         />
                                         <Form.Control hidden={true} isInvalid={Boolean(errors.guildId)} />
