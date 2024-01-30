@@ -328,7 +328,7 @@ export default function CreatePoll() {
                                                 onClick={async () => {
                                                     try {
                                                         const res = await ky.get(
-                                                            `/api/search?query=${values.query}&page=${page}`
+                                                            `/api/tmdb/search?query=${values.query}&page=${page}`
                                                         );
                                                         const searchRes: SearchResult = await res.json();
 
