@@ -1,15 +1,14 @@
-﻿using System.Collections;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Database;
 
 public class Vote {
 	[Key, Required]
-	public Poll Poll { get; set; }
+	public required Poll Poll { get; set; }
 	[Key, Required]
 	public required string UserId { get; set; }
 	[Required]
-	public string MovieId { get; set; }
+	public required string MovieId { get; set; }
 }
 
 public class Poll {
