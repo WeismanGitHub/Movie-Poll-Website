@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using System.Web.Http;
 using API;
 
 namespace server;
@@ -64,19 +63,32 @@ public class DiscordOauth2 {
 	}
 
 	public class User {
-		public string Id { get; set; }
-		// there are more properties, but i dont need them
-	}
+		public required string id { get; set; }
+		public required string username {  get; set; }
+		public required string discriminator { get; set; }
+		public required string? global_name { get; set; }
+		public required string? avatar {  get; set; }
+		public bool bot {  get; set; }
+		public bool system { get; set; }
+		public bool mfa_enabled { get; set; }
+		public string? banner { get; set; }
+		public int? accent_color { get; set; }
+		public string? locale { get; set; }
+		public int? flags { get; set; }
+		public int? premium_type { get; set; }
+		public int? public_flags { get; set; }
+		public string? avatar_decoration { get; set; }
+}
 
 	public async Task<User> GetUser(string accessToken) {
 		var client = new HttpClient();
 
 		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-		var res = await client.GetAsync("https://discord.com/api/users/@me/");
+		var res = await client.GetAsync("https://discord.com/api/users/@me");
 		var content = await res.Content.ReadAsStringAsync();
 
 		if (!res.IsSuccessStatusCode) {
-			throw new Exception(JsonDocument.Parse(content).RootElement.GetString("error_description"));
+			throw new Exception(content);
 		}
 
 		var user = JsonSerializer.Deserialize<User>(content);
