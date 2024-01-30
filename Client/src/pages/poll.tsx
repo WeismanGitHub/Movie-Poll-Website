@@ -186,6 +186,7 @@ export default function Poll() {
                         {(poll && voteMap) && 
                             poll.movies.sort((a, b) => voteMap.get(a.id)! - voteMap.get(b.id)!)
                             .map((movie) => {
+                                const votes = voteMap.get(movie.id)
                                 return (
                                     <li>
                                         <img
@@ -207,7 +208,7 @@ export default function Poll() {
                                                 {movie.title} {movie.releaseDate.slice(0, 4)}
                                             </div>
                                         </a>
-                                        {voteMap.get(movie.id) ?? 0} votes
+                                        {votes ?? 0} vote{votes == 1 ? '' : 's'}
                                     </li>
                                 );
                             })}
