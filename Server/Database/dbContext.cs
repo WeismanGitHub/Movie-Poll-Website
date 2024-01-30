@@ -12,5 +12,14 @@ public class LbPollContext : DbContext {
         DbPath = Path.Join(path, "movie-poll.db");
     }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder options) => options.UseSqlite($"Data Source={DbPath}");
+	protected override void OnModelCreating(ModelBuilder modelBuilder) {
+		modelBuilder.Entity<Poll>()
+			.HasMany(p => p.Votes)
+			.WithOne(v => v.Poll);
+
+		modelBuilder.Entity<Vote>()
+			.HasKey(v => new { v.PollId, v.UserId });
+	}
+
+	protected override void OnConfiguring(DbContextOptionsBuilder options) => options.UseSqlite($"Data Source={DbPath}");
 }

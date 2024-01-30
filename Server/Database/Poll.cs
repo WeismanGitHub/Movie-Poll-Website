@@ -3,9 +3,12 @@
 namespace Database;
 
 public class Vote {
-	[Key, Required]
+	[Required]
 	public required Poll Poll { get; set; }
-	[Key, Required]
+	[Required]
+	public Guid PollId { get; set; }
+
+	[Required]
 	public required string UserId { get; set; }
 	[Required]
 	public required string MovieId { get; set; }
