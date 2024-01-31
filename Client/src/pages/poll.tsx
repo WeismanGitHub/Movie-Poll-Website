@@ -28,6 +28,7 @@ export default function Poll() {
     const [voteMap, setVoteMap] = useState<Map<string, number> | null>(new Map<string, number>());
     const [poll, setPoll] = useState<Poll | undefined>(undefined);
     const [selected, setSelected] = useState<Movie | null>(null);
+    const [showVote, setShowVote] = useState(false);
     const { pollId } = useParams();
     const navigate = useNavigate();
 
@@ -73,6 +74,7 @@ export default function Poll() {
             });
 
             setSelected(null)
+            setShowVote(true)
         } catch (err) {
             console.log(err)
             setError('Could not vote.');
@@ -96,6 +98,20 @@ export default function Poll() {
                     <Toast.Body>{error}</Toast.Body>
                 </Toast>
             </ToastContainer>
+            <ToastContainer position="top-end">
+                <Toast
+                    onClose={() => setShowVote(false)}
+                    show={showVote}
+                    autohide={true}
+                    className="d-inline-block m-1"
+                    bg={'success'}
+                >
+                    <Toast.Header>
+                        <strong className="me-auto">Voted Successfully!</strong>
+                    </Toast.Header>
+                </Toast>
+            </ToastContainer>
+
 
             <Modal show={selected !== null}>
                 <Modal.Dialog>
@@ -127,11 +143,11 @@ export default function Poll() {
 
             <div style={{ width: '90%' }}>
                 {poll ? (
-                    <div className="m-auto rounded shadow p-2">
+                    <div className="m-auto">
                         <div className="fs-3">{poll.question}</div>
                         {poll.serverRestricted && (
                             <div
-                                className="border-1 border rounded bg-dark-subtle d-inline-block m-1"
+                                className="border-1 border rounded bg-body d-inline-block m-1"
                                 style={{ padding: '2px', fontSize: '12px' }}
                             >
                                 Server Restricted
@@ -139,7 +155,7 @@ export default function Poll() {
                         )}
                         <div className="d-flex justify-content-center" style={{ fontSize: '12px' }}>
                             <div
-                                className="border-1 border rounded bg-dark-subtle d-inline-block m-1"
+                                className="border-1 border rounded bg-body d-inline-block m-1"
                                 style={{ padding: '2px' }}
                             >
                                 {`Created ${new Date(poll.createdAt).toLocaleDateString('en-US', {
@@ -151,7 +167,7 @@ export default function Poll() {
                             </div>
                             {poll.expiration && (
                                 <div
-                                    className="border-1 border rounded bg-dark-subtle d-inline-block m-1"
+                                    className="border-1 border rounded bg-body d-inline-block m-1"
                                     style={{ padding: '2px' }}
                                 >
                                     Expires{' '}
