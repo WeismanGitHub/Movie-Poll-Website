@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Server.Migrations
+namespace server.Migrations
 {
     [DbContext(typeof(LbPollContext))]
     partial class LbPollContextModelSnapshot : ModelSnapshot
@@ -49,9 +49,6 @@ namespace Server.Migrations
 
             modelBuilder.Entity("Database.Vote", b =>
                 {
-                    b.Property<Guid>("PollId")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("UserId")
                         .HasColumnType("TEXT");
 
@@ -59,7 +56,12 @@ namespace Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("PollId", "UserId");
+                    b.Property<Guid>("PollId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserId");
+
+                    b.HasIndex("PollId");
 
                     b.ToTable("Vote");
                 });
