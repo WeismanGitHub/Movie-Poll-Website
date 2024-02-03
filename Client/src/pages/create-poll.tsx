@@ -1,6 +1,5 @@
 import { ToastContainer, Toast, Button, Row, Form, Col, InputGroup, Pagination } from 'react-bootstrap';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import DateTimePicker from 'react-datetime-picker';
 import { useEffect, useState } from 'react';
 import { Field, Formik } from 'formik';
 import * as yup from 'yup';
@@ -241,10 +240,15 @@ export default function CreatePoll() {
                                 </Row>
                                 <Row className="mb-2 d-flex justify-content-center align-content-center">
                                     {values.expirationToggle && (
-                                        <DateTimePicker
-                                            className="w-25 d-flex justify-content-center align-items-center"
-                                            onChange={(value) => setFieldValue('expirationDate', value)}
-                                            value={values.expirationDate}
+                                        <input
+                                            type="datetime-local"
+                                            className="d-flex justify-content-center align-items-center"
+                                            style={{ minWidth: '100px', maxWidth: '350px' }}
+                                            value={values.expirationDate ?? undefined}
+                                            min={Date.now()}
+                                            onChange={(value) => {
+                                                setFieldValue('expirationDate', value.target.value)
+                                            }}
                                         />
                                     )}
                                 </Row>
