@@ -11,7 +11,6 @@ builder.Services.AddSingleton(settings);
 
 var app = builder.Build();
 
-app.UseExceptionHandler(err => err.ErrorHandler());
 app.MapControllers();
 app.UseSwagger();
 app.UseSwaggerUI();

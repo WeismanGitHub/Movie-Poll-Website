@@ -225,19 +225,4 @@ public class PollsController : ControllerBase {
 
 		return Ok();
 	}
-
-	public enum Sort {
-		New,
-		Popularity,
-		Old
-	}
-
-	[HttpGet(Name = "Find")]
-	[ProducesResponseType(StatusCodes.Status200OK)]
-	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-	public async Task<IActionResult> Find([FromQuery(Name = "query")] string query, [FromQuery(Name = "sort")] string sort) {
-		using var db = new LbPollContext();
-		Console.WriteLine(query);
-		Console.WriteLine(sort);
-	}
 }
