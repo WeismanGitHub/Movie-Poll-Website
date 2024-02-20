@@ -1,0 +1,7 @@
+.brightness-effect:hover {
+    filter: brightness(1.2);
+  }
+
+  .brightness-effect:active {
+    filter: brightness(1.3);
+  }
