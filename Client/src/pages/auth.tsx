@@ -1,6 +1,7 @@
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Button, Navbar } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { useEffect } from 'react';
+import Navbar from '../navbar';
 
 function generateState() {
     const randomNumber = Math.floor(Math.random() * 10);

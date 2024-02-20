@@ -1,4 +1,4 @@
-import { Navbar } from 'react-bootstrap';
+import Navbar from '../navbar';
 
 export default function Home() {
     return (
@@ -14,9 +14,6 @@ export default function Home() {
                         <strong>SQL</strong>, and <strong>React</strong>.
                     </div>
                     <br />
-                    <a href="/create" className="btn btn-primary btn-lg" role="button">
-                        Create Poll
-                    </a>
                 </div>
             </div>
         </>
