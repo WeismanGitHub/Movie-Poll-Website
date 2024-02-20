@@ -1,5 +1,5 @@
 import { useSearchParams, useParams, useNavigate } from 'react-router-dom';
-import { ToastContainer, Toast, Button, Modal } from 'react-bootstrap';
+import { ToastContainer, Toast, Button, Modal, Navbar } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import ky from 'ky';
 
@@ -33,17 +33,18 @@ export default function Poll() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const code = searchParams.get('code')
+        const code = searchParams.get('code');
         setSearchParams({});
 
         if (code) {
-            ky.get(`/api/discord/token?code=${code}`).json()
-            .then(res => setToken(res as string))
-            .catch(async (err) => {
-                console.log(err);
-                setError('Could not get access token.');
-                setShowError(true);
-            });
+            ky.get(`/api/discord/token?code=${code}`)
+                .json()
+                .then((res) => setToken(res as string))
+                .catch(async (err) => {
+                    console.log(err);
+                    setError('Could not get access token.');
+                    setShowError(true);
+                });
         }
 
         ky.get(`/api/polls/${pollId}`)
@@ -55,7 +56,7 @@ export default function Poll() {
                     const votes = map.get(id);
                     map.set(id, votes == undefined ? 1 : votes + 1);
                 });
-                setVoteMap(map)
+                setVoteMap(map);
             })
             .catch(async (err) => {
                 console.log(err);
@@ -69,14 +70,14 @@ export default function Poll() {
             await ky.post(`/api/polls/${pollId}/vote`, {
                 json: {
                     accessToken: token,
-                    movieId: selected!.id
+                    movieId: selected!.id,
                 },
             });
 
-            setSelected(null)
-            setShowVote(true)
+            setSelected(null);
+            setShowVote(true);
         } catch (err) {
-            console.log(err)
+            console.log(err);
             setError('Could not vote.');
             setShowError(true);
         }
@@ -84,6 +85,7 @@ export default function Poll() {
 
     return (
         <div className="container d-flex text-break vw-100 align-items-center justify-content-center flex-column text-center">
+            <Navbar />
             <ToastContainer position="top-end">
                 <Toast
                     onClose={() => setShowError(false)}
@@ -111,7 +113,6 @@ export default function Poll() {
                     </Toast.Header>
                 </Toast>
             </ToastContainer>
-
 
             <Modal show={selected !== null}>
                 <Modal.Dialog>
@@ -198,11 +199,13 @@ export default function Poll() {
                     'loading...'
                 )}
                 <br />
-                    <ul className="list-inline-scroll list-unstyled d-flex flex-wrap align-content-center justify-content-center">
-                        {(poll && voteMap) && 
-                            poll.movies.sort((a, b) => voteMap.get(a.id)! - voteMap.get(b.id)!)
+                <ul className="list-inline-scroll list-unstyled d-flex flex-wrap align-content-center justify-content-center">
+                    {poll &&
+                        voteMap &&
+                        poll.movies
+                            .sort((a, b) => voteMap.get(a.id)! - voteMap.get(b.id)!)
                             .map((movie) => {
-                                const votes = voteMap.get(movie.id)
+                                const votes = voteMap.get(movie.id);
                                 return (
                                     <li>
                                         <img
@@ -228,7 +231,7 @@ export default function Poll() {
                                     </li>
                                 );
                             })}
-                    </ul>
+                </ul>
             </div>
         </div>
     );

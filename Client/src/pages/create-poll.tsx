@@ -2,6 +2,7 @@ import { ToastContainer, Toast, Button, Row, Form, Col, InputGroup, Pagination }
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Field, Formik } from 'formik';
+import NavBar from '../navbar';
 import * as yup from 'yup';
 import ky from 'ky';
 
@@ -72,18 +73,18 @@ export default function CreatePoll() {
 
         if (!code) return;
 
-        (async function() {
+        (async function () {
             try {
-                const token: string = await ky.get(`/api/discord/token?code=${code}`).json()
-                const guilds: Guild[] = await ky.get(`/api/discord/guilds?token=${token!}`).json()
-                setToken(token)
-                setGuilds(guilds)
-            } catch(err) {
+                const token: string = await ky.get(`/api/discord/token?code=${code}`).json();
+                const guilds: Guild[] = await ky.get(`/api/discord/guilds?token=${token!}`).json();
+                setToken(token);
+                setGuilds(guilds);
+            } catch (err) {
                 console.log(err);
                 setError('Could not get your servers');
                 setShowError(true);
             }
-        })()
+        })();
     }, []);
 
     const schema = yup.object().shape({
@@ -107,6 +108,7 @@ export default function CreatePoll() {
 
     return (
         <div className="container vh-100 vw-100 text-center align-items-center justify-content-center flex">
+            <NavBar />
             <ToastContainer position="top-end">
                 <Toast
                     onClose={() => setShowError(false)}
@@ -224,9 +226,16 @@ export default function CreatePoll() {
                                             name="restrictionToggle"
                                             onChange={() => {
                                                 if (token) {
-                                                    setFieldValue('restrictionToggle', !values.restrictionToggle);
+                                                    setFieldValue(
+                                                        'restrictionToggle',
+                                                        !values.restrictionToggle
+                                                    );
                                                     return setFieldValue('guildId', null);
-                                                } else if (confirm("This will redirect you and you will lose all inputted data.")) {
+                                                } else if (
+                                                    confirm(
+                                                        'This will redirect you and you will lose all inputted data.'
+                                                    )
+                                                ) {
                                                     localStorage.setItem('redirect', 'create');
                                                     return navigate('/auth');
                                                 }
@@ -247,7 +256,7 @@ export default function CreatePoll() {
                                             value={values.expirationDate ?? undefined}
                                             min={Date.now()}
                                             onChange={(value) => {
-                                                setFieldValue('expirationDate', value.target.value)
+                                                setFieldValue('expirationDate', value.target.value);
                                             }}
                                         />
                                     )}
