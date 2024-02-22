@@ -4,7 +4,7 @@ export default function Home() {
     return (
         <>
             <Navbar />
-            <div className="container justify-content-center align-items-center vh-100 vw-100 text-center fs-4 p-2 d-flex">
+            <div className="container justify-content-center align-items-center text-center fs-4 p-2 d-flex">
                 <div>
                     <h1>Easily create polls and engage in a collective movie-selection process.</h1>
                     Integrate seamlessly with Discord to restrict polls to server members.
