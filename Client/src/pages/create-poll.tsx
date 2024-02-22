@@ -107,7 +107,7 @@ export default function CreatePoll() {
     });
 
     return (
-        <div className='vh-100 vw-100'>
+        <div className="vh-100 vw-100">
             <NavBar />
             <div className="container text-center align-items-center justify-content-center flex">
                 <ToastContainer position="top-end">
@@ -207,7 +207,10 @@ export default function CreatePoll() {
                                                 type="checkbox"
                                                 name="expirationToggle"
                                                 onChange={() => {
-                                                    setFieldValue('expirationToggle', !values.expirationToggle);
+                                                    setFieldValue(
+                                                        'expirationToggle',
+                                                        !values.expirationToggle
+                                                    );
                                                     setFieldValue('expirationDate', null);
                                                 }}
                                             />
@@ -276,20 +279,22 @@ export default function CreatePoll() {
                                                             style={
                                                                 values.guildId === guild.id
                                                                     ? {
-                                                                        border: 'solid black 2px',
-                                                                        borderRadius: '5px',
-                                                                        padding: '2px',
-                                                                    }
+                                                                          border: 'solid black 2px',
+                                                                          borderRadius: '5px',
+                                                                          padding: '2px',
+                                                                      }
                                                                     : {
-                                                                        border: 'solid transparent 2px',
-                                                                        borderRadius: '5px',
-                                                                        padding: '2px',
-                                                                    }
+                                                                          border: 'solid transparent 2px',
+                                                                          borderRadius: '5px',
+                                                                          padding: '2px',
+                                                                      }
                                                             }
                                                             onClick={() =>
                                                                 setFieldValue(
                                                                     'guildId',
-                                                                    guild.id === values.guildId ? null : guild.id
+                                                                    guild.id === values.guildId
+                                                                        ? null
+                                                                        : guild.id
                                                                 )
                                                             }
                                                         >
@@ -428,7 +433,10 @@ export default function CreatePoll() {
                                                                 <img
                                                                     onClick={() => {
                                                                         setFieldValue('movies', [
-                                                                            ...new Set([...values.movies, movie]),
+                                                                            ...new Set([
+                                                                                ...values.movies,
+                                                                                movie,
+                                                                            ]),
                                                                         ]);
                                                                     }}
                                                                     width="150px"
