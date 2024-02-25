@@ -425,7 +425,7 @@ export default function CreatePoll() {
                                     </Form.Group>
                                     <Row>
                                         <div>
-                                            <Col className="w-50 float-start">
+                                            <Col className="float-start" style={{ width: '49%' }}>
                                                 <ul className="list-inline-scroll list-unstyled d-flex flex-wrap align-content-center justify-content-center">
                                                     {result?.results.map((movie) => {
                                                         return (
@@ -444,6 +444,9 @@ export default function CreatePoll() {
                                                                     src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
                                                                     alt="movie poster"
                                                                     style={{
+                                                                        maxWidth: '150px',
+                                                                        width: '20%',
+                                                                        minWidth: '140px',
                                                                         cursor: 'pointer',
                                                                         borderRadius: '5px',
                                                                         margin: '2px',
@@ -453,7 +456,11 @@ export default function CreatePoll() {
                                                                     href={`https://www.themoviedb.org/movie/${movie.id}`}
                                                                 >
                                                                     <div
-                                                                        style={{ width: '150px' }}
+                                                                        style={{
+                                                                            maxWidth: '150px',
+                                                                            width: '20%',
+                                                                            minWidth: '140px',
+                                                                        }}
                                                                         className="text-wrap"
                                                                     >
                                                                         {movie.title}{' '}
@@ -465,7 +472,7 @@ export default function CreatePoll() {
                                                     })}
                                                 </ul>
                                             </Col>
-                                            <Col className="w-50 float-end">
+                                            <Col className="float-end" style={{ width: '49%' }}>
                                                 <ul className="list-inline-scroll list-unstyled d-flex flex-wrap align-content-center justify-content-center">
                                                     {values.movies.map((movie) => {
                                                         return (
@@ -479,11 +486,13 @@ export default function CreatePoll() {
                                                                             )
                                                                         )
                                                                     }
-                                                                    width="150px"
                                                                     className="list-inline-item"
                                                                     src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
                                                                     alt="movie poster"
                                                                     style={{
+                                                                        maxWidth: '150px',
+                                                                        width: '20%',
+                                                                        minWidth: '140px',
                                                                         borderRadius: '5px',
                                                                         margin: '2px',
                                                                         cursor: 'pointer',
@@ -493,7 +502,11 @@ export default function CreatePoll() {
                                                                     href={`https://www.themoviedb.org/movie/${movie.id}`}
                                                                 >
                                                                     <div
-                                                                        style={{ width: '150px' }}
+                                                                        style={{
+                                                                            maxWidth: '150px',
+                                                                            width: '20%',
+                                                                            minWidth: '140px',
+                                                                        }}
                                                                         className="text-wrap"
                                                                     >
                                                                         {movie.title}{' '}
