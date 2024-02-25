@@ -43,7 +43,7 @@ export default function Auth() {
     }, []);
 
     return (
-        <>
+        <div className='overflow-y-hidden vh-100'>
             <Navbar />
             <div
                 className="container d-flex align-items-center justify-content-center flex-column text-center"
@@ -56,6 +56,6 @@ export default function Auth() {
                     Authorize
                 </Button>
             </div>
-        </>
+        </div>
     );
 }
