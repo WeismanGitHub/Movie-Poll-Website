@@ -6,11 +6,6 @@
     filter: brightness(1.3);
 }
 
-a {
-    text-decoration: none;
-    color: white;
-}
-
 .navbar {
     background-color: #9cc3ff;
     text-decoration: none !important;
@@ -36,4 +31,8 @@ a {
 
 .nav-item:hover {
     background-color: #0b5ed7;
+}
+
+body {
+    overflow-x: hidden;
 }

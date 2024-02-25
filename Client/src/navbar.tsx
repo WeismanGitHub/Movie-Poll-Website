@@ -17,6 +17,12 @@ export default function NavBar() {
                             height="50"
                             alt="icon"
                             className="me-2 rounded-5 bg-white"
+                            style={{
+                                borderRadius: '100%',
+                                borderColor: 'black',
+                                borderWidth: '1px',
+                                borderStyle: 'solid',
+                            }}
                         />
                         <span className="d-block d-sm-inline-block">Movie Polls</span>
                     </a>
@@ -36,10 +42,17 @@ export default function NavBar() {
                     >
                         <ul className="navbar-nav d-flex justify-content-center align-items-center">
                             <li className={`nav-item nav-link active w-75 m-1 ${isNavOpen ? ' mb-2' : ''}`}>
-                                <a href="/create">Create</a>
+                                <a href="/create" style={{ textDecoration: 'none', color: 'white' }}>
+                                    Create
+                                </a>
                             </li>
                             <li className={`nav-item nav-link active w-75 m-1 ${isNavOpen ? ' mb-2' : ''}`}>
-                                <a href="https://github.com/WeismanGitHub/Movie-Poll-Website">GitHub</a>
+                                <a
+                                    href="https://github.com/WeismanGitHub/Movie-Poll-Website"
+                                    style={{ textDecoration: 'none', color: 'white' }}
+                                >
+                                    GitHub
+                                </a>
                             </li>
                         </ul>
                     </div>
