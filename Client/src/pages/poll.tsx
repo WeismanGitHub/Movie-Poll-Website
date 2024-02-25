@@ -67,6 +67,7 @@ export default function Poll() {
     }, []);
 
     async function vote() {
+        window.scrollTo(0, 0);
         try {
             await ky.post(`/api/polls/${pollId}/vote`, {
                 json: {
@@ -85,7 +86,7 @@ export default function Poll() {
     }
 
     return (
-        <div className='vh-100'>
+        <div className="vh-100">
             <NavBar />
             <div className="container d-flex text-break vw-100 align-items-center justify-content-center flex-column text-center">
                 <ToastContainer position="top-end">
@@ -148,41 +149,49 @@ export default function Poll() {
                 <div style={{ width: '90%' }}>
                     {poll ? (
                         <div className="m-auto">
-                            <div className="fs-3 w-100 border-black border-1">{poll.question}</div>
-                            {poll.serverRestricted && (
-                                <div
-                                    className="border-1 border rounded bg-body d-inline-block m-1"
-                                    style={{ padding: '2px', fontSize: '12px' }}
-                                >
-                                    Server Restricted
-                                </div>
-                            )}
-                            <div className="d-flex justify-content-center" style={{ fontSize: '12px' }}>
-                                <div
-                                    className="border-1 border rounded bg-body d-inline-block m-1"
-                                    style={{ padding: '2px' }}
-                                >
-                                    {`Created ${new Date(poll.createdAt).toLocaleDateString('en-US', {
-                                        weekday: 'long',
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric',
-                                    })}`}
-                                </div>
-                                {poll.expiration && (
+                            <div
+                                className="w-100 m-1"
+                                style={{ borderColor: '#0d6efd', borderRadius: '5px', borderStyle: 'solid' }}
+                            >
+                                {' '}
+                                <div className="fs-3">{poll.question}</div>
+                                {poll.serverRestricted && (
                                     <div
+                                        className="border-1 border rounded bg-body d-inline-block m-1"
+                                        style={{ padding: '2px', fontSize: '12px' }}
+                                    >
+                                        Server Restricted
+                                    </div>
+                                )}
+                                <div className="d-flex justify-content-center" style={{ fontSize: '12px' }}>
+                                    <div
+                                        title={new Date(poll.createdAt).toLocaleString()}
                                         className="border-1 border rounded bg-body d-inline-block m-1"
                                         style={{ padding: '2px' }}
                                     >
-                                        Expires{' '}
-                                        {new Date(poll.expiration).toLocaleDateString('en-US', {
+                                        {`Created ${new Date(poll.createdAt).toLocaleDateString('en-US', {
                                             weekday: 'long',
                                             year: 'numeric',
                                             month: 'long',
                                             day: 'numeric',
-                                        })}
+                                        })}`}
                                     </div>
-                                )}
+                                    {poll.expiration && (
+                                        <div
+                                            title={new Date(poll.expiration).toLocaleString()}
+                                            className="border-1 border rounded bg-body d-inline-block m-1"
+                                            style={{ padding: '2px' }}
+                                        >
+                                            Expires{' '}
+                                            {new Date(poll.expiration).toLocaleDateString('en-US', {
+                                                weekday: 'long',
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric',
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                             <br />
                             {token ? (
@@ -206,7 +215,7 @@ export default function Poll() {
                         {poll &&
                             voteMap &&
                             poll.movies
-                                .sort((a, b) => voteMap.get(a.id)! - voteMap.get(b.id)!)
+                                .sort((a, b) => (voteMap.get(b.id) ?? 0) - (voteMap.get(a.id) ?? 0))
                                 .map((movie) => {
                                     const votes = voteMap.get(movie.id);
                                     return (
