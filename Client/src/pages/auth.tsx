@@ -45,7 +45,10 @@ export default function Auth() {
     return (
         <>
             <Navbar />
-            <div className="container d-flex vh-100 vw-100 align-items-center justify-content-center flex-column text-center">
+            <div
+                className="container d-flex align-items-center justify-content-center flex-column text-center"
+                style={{ height: '90vh' }}
+            >
                 <Button
                     href={import.meta.env.VITE_OAUTH_URL + `&state=${btoa(randomString)}`}
                     className="btn-lg"
