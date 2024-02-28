@@ -179,7 +179,6 @@ public class PollsController : ControllerBase {
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-	[ProducesResponseType(StatusCodes.Status403Forbidden)]
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 	public async Task<IActionResult> Vote([FromRoute] Guid id, [FromBody] VoteDTO body) {
 		using var db = new LbPollContext();
@@ -203,7 +202,7 @@ public class PollsController : ControllerBase {
 		}
 
 		if (poll.Expiration != null && poll.Expiration < DateTime.Now) {
-			return Forbid("Poll has expired.");
+			return BadRequest("Poll has expired.");
 		}
 
 		if (poll.GuildId != null) {
