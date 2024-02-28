@@ -46,6 +46,10 @@ public class PollsController : ControllerBase {
 			return BadRequest("Invalid Ids.");
 		}
 
+		if (input.MovieIds.Count != input.MovieIds.Distinct().Count()) {
+			return BadRequest("Duplicate Ids.");
+		}
+
 		if (input.GuildId != null) {
 			if (input.AccessToken == null) {
 				return BadRequest("You must be logged in to restrict a poll to a server.");
