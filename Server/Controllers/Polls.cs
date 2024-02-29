@@ -132,10 +132,7 @@ public class PollsController : ControllerBase {
 			}).FirstOrDefaultAsync();
 
 		if (poll == null) {
-			return NotFound(new ProblemDetails {
-                Status = 404,
-                Title = "Poll not found",
-            });
+			return NotFound("Poll not found");
 		}
 
 		var movies = await Task.WhenAll(poll.MovieIds.Select(async (id) => {
