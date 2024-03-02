@@ -11,7 +11,6 @@ builder.Services.AddSingleton(settings);
 
 var app = builder.Build();
 
-app.MapControllers();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHttpsRedirection();
@@ -20,5 +19,6 @@ app.UseDefaultFiles();
 app.UseResponseCaching();
 app.UseStaticFiles();
 app.MapFallbackToFile("/index.html");
+app.MapControllers();
 
 app.Run();
