@@ -7,74 +7,13 @@ using Database;
 using server;
 using API;
 
-namespace Movie_Poll_Website.Server.Controllers;
+namespace Server.Controllers;
 
 [ApiController]
 [Route("api/polls")]
 public class PollsController : ControllerBase {
-	private readonly Settings _settings;
 
-	public PollsController(Settings settings) {
-		_settings = settings;
-	}
 
-	public class CreatePollDTO {
-		[Required, MaxLength(500), MinLength(1)]
-		public required string Question { get; set; }
-		public DateTime? Expiration { get; set; }
-		public string? GuildId { get; set; }
-		public string? AccessToken { get; set; }
-		[Required, MinLength(2), MaxLength(50)]
-		public required List<string> MovieIds {  get; set; }
-	}
-
-	[HttpPost(Name = "CreatePoll")]
-	[ProducesResponseType(StatusCodes.Status201Created)]
-	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-	public async Task<IActionResult> CreatePoll([FromBody] CreatePollDTO input) {
-		using var db = new LbPollContext();
-		var client = new HttpClient();
-
-		if (input.Expiration != null && input.Expiration <= DateTime.Now) {
-			return BadRequest("Expiration must be greater than the current time.");
-		} else if (input.MovieIds.Count < 2 || input.MovieIds.Count > 50) {
-			return BadRequest("Selected movies must be between 2 and 50.");
-		}
-
-		if (input.MovieIds.Any(id => id.Length > 50)) {
-			return BadRequest("Invalid Ids.");
-		}
-
-		if (input.MovieIds.Count != input.MovieIds.Distinct().Count()) {
-			return BadRequest("Duplicate Ids.");
-		}
-
-		if (input.GuildId != null) {
-			if (input.AccessToken == null) {
-				return BadRequest("You must be logged in to restrict a poll to a server.");
-			}
-
-			var discord = new DiscordOauth2(_settings);
-			var guilds = await discord.GetGuilds(input.AccessToken);
-
-			if (!guilds.Any(guild => guild.id == input.GuildId)) {
-				return BadRequest("You must be in the server to restrict this poll.");
-			}
-		}
-
-		var poll = new Poll {
-			Question = input.Question,
-			Expiration = input.Expiration,
-			GuildId = input.GuildId,
-			MovieIds = input.MovieIds,
-		};
-
-		db.Add(poll);
-		await db.SaveChangesAsync();
-
-		return Created($"/polls/{poll.Id}", poll.Id);
-    }
 
 	public class Movie {
 		public string Id { get; set; }
