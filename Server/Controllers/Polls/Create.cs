@@ -18,7 +18,6 @@ public class CreateController : ControllerBase {
 			RuleFor(poll => poll.Question)
 				.NotEmpty()
 				.NotNull()
-				.MinimumLength(1)
 				.MaximumLength(500)
 				.WithMessage("Question must be between 1 and 500 characters.");
 
