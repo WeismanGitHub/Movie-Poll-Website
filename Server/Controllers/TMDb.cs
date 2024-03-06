@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Headers;
 using System.Net;
-using API;
 
-namespace Movie_Poll_Website.Server.Controllers;
+namespace Server.Controllers;
 
 [ApiController]
 [Route("api/tmdb")]

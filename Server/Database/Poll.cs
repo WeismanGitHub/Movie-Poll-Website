@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Database;
+namespace Server.Database;
 
 public class Vote {
 	[Required]

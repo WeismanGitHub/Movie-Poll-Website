@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace Database;
+namespace Server.Database;
 public class LbPollContext : DbContext {
     public DbSet<Poll> Polls { get; set; }
 

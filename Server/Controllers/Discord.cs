@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using server;
-using API;
 
-namespace Movie_Poll_Website.Server.Controllers;
+namespace Server.Controllers;
 
 [ApiController]
 [Route("api/discord")]

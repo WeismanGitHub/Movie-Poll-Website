@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using API;
 
-namespace server;
+namespace Server;
 
 public class DiscordOauth2 {
 	private readonly Settings _settings;

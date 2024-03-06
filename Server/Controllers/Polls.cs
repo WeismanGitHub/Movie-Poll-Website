@@ -1,11 +1,7 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using Database;
-using server;
-using API;
 
 namespace Server.Controllers;
 
