@@ -16,9 +16,9 @@ var app = builder.Build();
 
 app.UseHsts();
 app.UseResponseCaching();
+app.UseHttpsRedirection();
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseHttpsRedirection();
 app.UseAuthorization();
 app.UseDefaultFiles();
 app.UseStaticFiles();
