@@ -7,7 +7,7 @@ public class LbPollContext : DbContext {
     public string DbPath { get; }
 
     public LbPollContext() {
-        var folder = Environment.SpecialFolder.LocalApplicationData;
+		Environment.SpecialFolder folder = Environment.SpecialFolder.LocalApplicationData;
         var path = Environment.GetFolderPath(folder);
         DbPath = Path.Join(path, "movie-polls.db");
     }

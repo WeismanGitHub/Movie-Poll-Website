@@ -25,7 +25,7 @@ public class DiscordController : ControllerBase {
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 	public async Task<IActionResult> GetGuilds([FromQuery(Name = "token")] string accessToken) {
 		var discord = new DiscordOauth2(_settings);
-		var guilds = await discord.GetGuilds(accessToken);
+		List<DiscordOauth2.Guild> guilds = await discord.GetGuilds(accessToken);
 
 		return Ok(guilds);
 	}

@@ -26,7 +26,7 @@ public class TMDbController : ControllerBase {
 		var client = new HttpClient();
 		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _settings.TmdbKey);
 
-		var res = await client.GetAsync($"https://api.themoviedb.org/3/search/movie?query={query}&include_adult=true&page={page}'");
+		HttpResponseMessage res = await client.GetAsync($"https://api.themoviedb.org/3/search/movie?query={query}&include_adult=true&page={page}'");
 
 		if (res.StatusCode == HttpStatusCode.BadRequest) {
 			return BadRequest("Invalid search request.");
