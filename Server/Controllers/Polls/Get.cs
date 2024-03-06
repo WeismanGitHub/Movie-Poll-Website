@@ -35,7 +35,7 @@ public class GetController: ControllerBase {
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 	public async Task<IActionResult> GetPoll([FromRoute] Guid id, Settings settings) {
-		using var db = new LbPollContext();
+		using var db = new MoviePollsContext();
 		var client = new HttpClient();
 
 		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", settings.TmdbKey);

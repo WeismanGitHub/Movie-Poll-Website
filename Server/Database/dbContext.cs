@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 
 namespace Server.Database;
-public class LbPollContext : DbContext {
+public class MoviePollsContext : DbContext {
     public DbSet<Poll> Polls { get; set; }
 
     public string DbPath { get; }
 
-    public LbPollContext() {
+    public MoviePollsContext() {
 		Environment.SpecialFolder folder = Environment.SpecialFolder.LocalApplicationData;
         var path = Environment.GetFolderPath(folder);
         DbPath = Path.Join(path, "movie-polls.db");
