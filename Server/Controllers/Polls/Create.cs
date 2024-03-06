@@ -1,13 +1,11 @@
 ﻿using FluentValidation.Results;
 
-using Microsoft.AspNetCore.Mvc.Filters;
-
 namespace Server.Controllers;
 
 [ApiController]
 [Route("API/Polls")]
 public class CreateController : ControllerBase {
-	public class PollCreationBody {
+	public class CreatePollBody {
 		public required string Question { get; set; }
 		public DateTime? Expiration { get; set; }
 		public string? GuildId { get; set; }
@@ -15,7 +13,7 @@ public class CreateController : ControllerBase {
 		public required List<string> MovieIds { get; set; }
 	}
 
-	private class Validator : AbstractValidator<PollCreationBody> {
+	private class Validator : AbstractValidator<CreatePollBody> {
 		public Validator() {
 			RuleFor(poll => poll.Question)
 				.NotEmpty()
@@ -26,6 +24,7 @@ public class CreateController : ControllerBase {
 
 			RuleFor(poll => poll.Expiration)
 				.Must(expiration => expiration > DateTime.Now)
+				.When(poll => poll.Expiration != null)
 				.WithMessage("Expiration must be in the future.");
 
 			RuleFor(poll => poll.GuildId)
@@ -61,7 +60,7 @@ public class CreateController : ControllerBase {
 	[ProducesResponseType(StatusCodes.Status201Created)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-	public async Task<IActionResult> CreatePoll([FromBody] PollCreationBody body, Settings settings) {
+	public async Task<IActionResult> CreatePoll([FromBody] CreatePollBody body, Settings settings) {
 		ValidationResult validationResult = new Validator().Validate(body);
 
 		if (!validationResult.IsValid) {
