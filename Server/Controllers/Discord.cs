@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-namespace Server.Controllers;
+﻿namespace Server.Controllers;
 
 [ApiController]
 [Route("api/discord")]
