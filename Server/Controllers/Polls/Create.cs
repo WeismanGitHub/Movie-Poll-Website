@@ -63,7 +63,10 @@ public class CreateController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreatePoll([FromBody] CreatePollBody body, Settings settings)
+    public async Task<IActionResult> CreatePoll(
+        [FromBody] CreatePollBody body,
+        DiscordOauth2 discord
+    )
     {
         ValidationResult validationResult = new Validator().Validate(body);
 
@@ -74,7 +77,6 @@ public class CreateController : ControllerBase
 
         if (body.GuildId != null && body.AccessToken != null)
         {
-            var discord = new DiscordOauth2(settings);
             List<DiscordOauth2.Guild> guilds = await discord.GetGuilds(body.AccessToken);
 
             if (!guilds.Any(guild => guild.id == body.GuildId))

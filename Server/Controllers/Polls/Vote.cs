@@ -39,7 +39,7 @@ public class VoteController : ControllerBase
     public async Task<IActionResult> Vote(
         [FromRoute] Guid id,
         [FromBody] VoteBody body,
-        Settings settings
+        DiscordOauth2 discord
     )
     {
         ValidationResult validationResult = new Validator().Validate(body);
@@ -50,7 +50,6 @@ public class VoteController : ControllerBase
         }
 
         using var db = new MoviePollsContext();
-        var discord = new DiscordOauth2(settings);
         var client = new HttpClient();
 
         DiscordOauth2.User user = await discord.GetUser(body.AccessToken);

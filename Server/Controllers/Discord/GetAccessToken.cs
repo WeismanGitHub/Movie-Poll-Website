@@ -12,10 +12,9 @@ public class GetAccessTokenController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAccessToken(
         [FromQuery(Name = "code"), Required, MaxLength(50)] string authCode,
-        Settings settings
+        DiscordOauth2 discord
     )
     {
-        var discord = new DiscordOauth2(settings);
         var accessToken = await discord.GetAccessToken(authCode);
 
         return Ok(accessToken);
