@@ -1,18 +1,17 @@
 using Server;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddHsts(options => {
-	options.IncludeSubDomains = true;
-});
+builder.Services.AddHsts(options => options.IncludeSubDomains = true);
 
-var settings = builder.Configuration.Get<Settings>()!;
+Settings settings = builder.Configuration.Get<Settings>()!;
+builder.Services.AddSingleton(new DiscordOauth2(settings));
 builder.Services.AddSingleton(settings);
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 app.UseHsts();
 app.UseResponseCaching();
