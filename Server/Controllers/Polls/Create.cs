@@ -86,7 +86,6 @@ public class CreateController : ControllerBase
         }
 
         using var db = new MoviePollsContext();
-        var client = new HttpClient();
 
         var poll = new Poll
         {

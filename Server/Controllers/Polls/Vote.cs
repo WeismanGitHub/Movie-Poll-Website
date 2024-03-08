@@ -50,7 +50,6 @@ public class VoteController : ControllerBase
         }
 
         using var db = new MoviePollsContext();
-        var client = new HttpClient();
 
         DiscordOauth2.User user = await discord.GetUser(body.AccessToken);
 
