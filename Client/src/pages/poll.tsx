@@ -234,7 +234,10 @@ export default function Poll() {
                                                     cursor: token ? 'pointer' : 'default',
                                                 }}
                                             />
-                                            <a href={`https://www.themoviedb.org/movie/${movie.id}`}>
+                                            <a
+                                                target="_blank"
+                                                href={`https://www.themoviedb.org/movie/${movie.id}`}
+                                            >
                                                 <div style={{ width: '150px' }} className="text-wrap">
                                                     {movie.title} {movie.releaseDate.slice(0, 4)}
                                                 </div>

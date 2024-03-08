@@ -453,6 +453,7 @@ export default function CreatePoll() {
                                                                     }}
                                                                 />
                                                                 <a
+                                                                    target="_blank"
                                                                     href={`https://www.themoviedb.org/movie/${movie.id}`}
                                                                 >
                                                                     <div
@@ -499,6 +500,7 @@ export default function CreatePoll() {
                                                                     }}
                                                                 />
                                                                 <a
+                                                                    target="_blank"
                                                                     href={`https://www.themoviedb.org/movie/${movie.id}`}
                                                                 >
                                                                     <div
