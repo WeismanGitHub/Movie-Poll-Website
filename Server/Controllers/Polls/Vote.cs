@@ -39,7 +39,8 @@ public class VoteController : ControllerBase
     public async Task<IActionResult> Vote(
         [FromRoute] Guid id,
         [FromBody] VoteBody body,
-        DiscordOauth2 discord
+        DiscordOauth2 discord,
+        MoviePollsContext db
     )
     {
         ValidationResult validationResult = new Validator().Validate(body);
@@ -48,8 +49,6 @@ public class VoteController : ControllerBase
         {
             return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
         }
-
-        using var db = new MoviePollsContext();
 
         DiscordOauth2.User user = await discord.GetUser(body.AccessToken);
 

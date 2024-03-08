@@ -11,6 +11,7 @@ Settings settings = builder.Configuration.Get<Settings>()!;
 builder.Services.AddSingleton(new DiscordOauth2(settings));
 builder.Services.AddSingleton(settings);
 builder.Services.AddScoped<HttpClient>();
+builder.Services.AddScoped<MoviePollsContext>();
 
 WebApplication app = builder.Build();
 

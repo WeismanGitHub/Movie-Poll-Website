@@ -42,11 +42,10 @@ public class GetController : ControllerBase
     public async Task<IActionResult> GetPoll(
         [FromRoute] Guid id,
         Settings settings,
-        HttpClient client
+        HttpClient client,
+        MoviePollsContext db
     )
     {
-        using var db = new MoviePollsContext();
-
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
             "Bearer",
             settings.TmdbKey

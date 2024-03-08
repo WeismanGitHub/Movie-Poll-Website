@@ -65,7 +65,8 @@ public class CreateController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreatePoll(
         [FromBody] CreatePollBody body,
-        DiscordOauth2 discord
+        DiscordOauth2 discord,
+        MoviePollsContext db
     )
     {
         ValidationResult validationResult = new Validator().Validate(body);
@@ -84,8 +85,6 @@ public class CreateController : ControllerBase
                 return Forbid("You must be in the server to restrict this poll.");
             }
         }
-
-        using var db = new MoviePollsContext();
 
         var poll = new Poll
         {
