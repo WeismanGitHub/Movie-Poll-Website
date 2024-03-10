@@ -36,3 +36,19 @@
 body {
     overflow-x: hidden;
 }
+
+::-webkit-scrollbar {
+    width: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+    width: 7px;
+    background-color: #0b5ed7;
+    border-radius: 50px;
+}
+
+::-webkit-scrollbar-track {
+    border-radius: 50px;
+    width: 7px;
+    background-color: #9cc3ff;
+}
