@@ -6,11 +6,11 @@ namespace Server;
 
 public class DiscordOauth2
 {
-    private readonly Settings _settings;
+    private readonly Configuration _config;
 
-    public DiscordOauth2(Settings settings)
+    public DiscordOauth2(Configuration config)
     {
-        _settings = settings;
+        _config = config;
     }
 
     public class Guild
@@ -30,11 +30,11 @@ public class DiscordOauth2
 
         var reqBody = new Dictionary<string, string>()
         {
-            { "client_id", _settings.Discord.Id },
-            { "client_secret", _settings.Discord.Secret },
+            { "client_id", _config.Discord.Id },
+            { "client_secret", _config.Discord.Secret },
             { "code", authCode },
             { "grant_type", "authorization_code" },
-            { "redirect_uri", _settings.Discord.RedirectUri },
+            { "redirect_uri", _config.Discord.RedirectUri },
             { "scope", "identify guilds" },
         };
 

@@ -41,14 +41,14 @@ public class GetController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetPoll(
         [FromRoute] Guid id,
-        Settings settings,
+        Configuration config,
         HttpClient client,
         MoviePollsContext db
     )
     {
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
             "Bearer",
-            settings.TmdbKey
+            config.TmdbKey
         );
 
         var poll = await db

@@ -1,11 +1,11 @@
 ﻿namespace Server;
 
-public sealed class Settings
+public sealed class Configuration
 {
-    public required DiscordSettings Discord { get; set; }
+    public required DiscordConfig Discord { get; set; }
     public required string TmdbKey { get; set; }
 
-    public class DiscordSettings
+    public class DiscordConfig
     {
         public required string RedirectUri { get; set; }
         public required string Secret { get; set; }

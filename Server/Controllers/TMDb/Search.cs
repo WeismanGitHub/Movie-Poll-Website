@@ -15,13 +15,13 @@ public class SearchController : ControllerBase
     public async Task<IActionResult> SearchMovie(
         [FromQuery(Name = "query"), MaxLength(500), MinLength(1), Required] string query,
         [FromQuery(Name = "page"), MaxLength(500), MinLength(1), Required] string page,
-        Settings settings,
+        Configuration config,
         HttpClient client
     )
     {
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
             "Bearer",
-            settings.TmdbKey
+            config.TmdbKey
         );
 
         HttpResponseMessage res = await client.GetAsync(
