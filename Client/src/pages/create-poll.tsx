@@ -275,11 +275,12 @@ export default function CreatePoll() {
                                                     guilds.map((guild) => (
                                                         <li
                                                             key={guild.id}
-                                                            className="list-inline-item d-flex brightness-effect"
+                                                            className="brightness-effect d-flex align-items-center"
                                                             style={
                                                                 values.guildId === guild.id
                                                                     ? {
-                                                                          border: 'solid black 2px',
+                                                                          border: 'solid 2px',
+                                                                          borderColor: '#1f54db',
                                                                           borderRadius: '5px',
                                                                           padding: '2px',
                                                                       }
@@ -298,25 +299,28 @@ export default function CreatePoll() {
                                                                 )
                                                             }
                                                         >
-                                                            <img
-                                                                width={65}
-                                                                height={65}
-                                                                src={
-                                                                    guild.icon
-                                                                        ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
-                                                                        : '/discord.svg'
-                                                                }
-                                                                alt="server name"
-                                                                style={{
-                                                                    borderRadius: '50%',
-                                                                    marginRight: '2px',
-                                                                }}
-                                                            />
-                                                            <div
-                                                                className="text-nowrap flex-grow-1 d-flex align-items-center justify-content-center"
-                                                                style={{ height: '65px' }}
-                                                            >
-                                                                {guild.name}
+                                                            <div className='list-inline-item d-flex'>
+                                                                <img
+                                                                    width={65}
+                                                                    height={65}
+                                                                    src={
+                                                                        guild.icon
+                                                                            ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
+                                                                            : '/discord.svg'
+                                                                    }
+                                                                    alt="server name"
+                                                                    style={{
+                                                                        borderRadius: '50%',
+                                                                        marginRight: '2px',
+                                                                    }}
+                                                                />
+                                                                <div
+                                                                    className="text-nowrap flex-grow-1 d-flex align-items-center justify-content-center"
+                                                                    style={{ height: '65px' }}
+                                                                >
+                                                                    {guild.name}
+                                                                </div>
+
                                                             </div>
                                                         </li>
                                                     ))
