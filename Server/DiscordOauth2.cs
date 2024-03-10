@@ -15,13 +15,13 @@ public class DiscordOauth2
 
     public class Guild
     {
-        public string id { get; set; }
-        public string name { get; set; }
-        public string icon { get; set; }
-        public bool owner { get; set; }
-        public int permissions { get; set; }
-        public string permissions_new { get; set; }
-        public List<string> features { get; set; }
+        public required string id { get; set; }
+        public required string name { get; set; }
+        public required string icon { get; set; }
+        public required bool owner { get; set; }
+        public required int permissions { get; set; }
+        public required string permissions_new { get; set; }
+        public required List<string> features { get; set; }
     }
 
     public async Task<string> GetAccessToken(string authCode)
@@ -38,20 +38,27 @@ public class DiscordOauth2
             { "scope", "identify guilds" },
         };
 
-        var res = await client.PostAsync(
+        HttpResponseMessage res = await client.PostAsync(
             "https://discord.com/api/oauth2/token",
             new FormUrlEncodedContent(reqBody)
         );
 
         var content = await res.Content.ReadAsStringAsync();
-        var json = JsonDocument.Parse(content).RootElement;
+        JsonElement json = JsonDocument.Parse(content).RootElement;
 
         if (!res.IsSuccessStatusCode)
         {
             throw new Exception(json.GetString("error_description"));
         }
 
-        return json.GetString("access_token");
+        var accessToken = json.GetString("access_token");
+
+        if (accessToken == null)
+        {
+            throw new Exception("Could not read access token.");
+        }
+
+        return accessToken;
     }
 
     public async Task<List<Guild>> GetGuilds(string accessToken)
@@ -62,7 +69,7 @@ public class DiscordOauth2
             accessToken
         );
 
-        var res = await client.GetAsync("https://discord.com/api/users/@me/guilds");
+        HttpResponseMessage res = await client.GetAsync("https://discord.com/api/users/@me/guilds");
         var content = await res.Content.ReadAsStringAsync();
 
         if (!res.IsSuccessStatusCode)
@@ -71,8 +78,14 @@ public class DiscordOauth2
             throw new Exception(JsonDocument.Parse(content).RootElement.GetString("message"));
         }
 
-        var guilds = JsonSerializer.Deserialize<List<Guild>>(content);
-        return guilds!;
+        List<Guild>? guilds = JsonSerializer.Deserialize<List<Guild>>(content);
+
+        if (guilds == null)
+        {
+            throw new Exception("Could not read guilds.");
+        }
+
+        return guilds;
     }
 
     public class User
@@ -102,7 +115,7 @@ public class DiscordOauth2
             "Bearer",
             accessToken
         );
-        var res = await client.GetAsync("https://discord.com/api/users/@me");
+        HttpResponseMessage res = await client.GetAsync("https://discord.com/api/users/@me");
         var content = await res.Content.ReadAsStringAsync();
 
         if (!res.IsSuccessStatusCode)
@@ -110,7 +123,7 @@ public class DiscordOauth2
             throw new Exception(content);
         }
 
-        var user = JsonSerializer.Deserialize<User>(content);
+        User? user = JsonSerializer.Deserialize<User>(content);
         return user!;
     }
 }
