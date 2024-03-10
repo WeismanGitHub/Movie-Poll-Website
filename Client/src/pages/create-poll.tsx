@@ -167,6 +167,8 @@ export default function CreatePoll() {
 
                             if (values.movies.length > 50) {
                                 window.scrollTo(0, 0);
+                                setError('Cannot select more than 50 movies.');
+                                setShowError(true);
                             }
 
                             if (values.expirationToggle && !values.expirationDate) {
@@ -299,7 +301,7 @@ export default function CreatePoll() {
                                                                 )
                                                             }
                                                         >
-                                                            <div className='list-inline-item d-flex'>
+                                                            <div className="list-inline-item d-flex">
                                                                 <img
                                                                     width={65}
                                                                     height={65}
@@ -320,7 +322,6 @@ export default function CreatePoll() {
                                                                 >
                                                                     {guild.name}
                                                                 </div>
-
                                                             </div>
                                                         </li>
                                                     ))
