@@ -1,3 +1,4 @@
+using Microsoft.Extensions.FileProviders;
 using Server;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -21,8 +22,15 @@ app.UseSwagger();
 app.UseSwaggerUI();
 app.UseAuthorization();
 app.UseDefaultFiles();
-app.UseStaticFiles();
 app.MapFallbackToFile("/index.html");
 app.MapControllers();
+app.UseStaticFiles(
+    new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../Client/dist")
+        ),
+    }
+);
 
 app.Run();
