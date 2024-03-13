@@ -15,7 +15,7 @@ if (!certificateName) {
 export default defineConfig({
     build: {
         emptyOutDir: true,
-        outDir: './dist',
+        outDir: '../Server/wwwroot',
     },
     plugins: [plugin()],
     resolve: {

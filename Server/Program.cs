@@ -36,13 +36,6 @@ app.UseAuthorization();
 app.UseDefaultFiles();
 app.MapFallbackToFile("/index.html");
 app.MapControllers();
-app.UseStaticFiles(
-    new StaticFileOptions
-    {
-        FileProvider = new PhysicalFileProvider(
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../Client/dist")
-        ),
-    }
-);
+app.UseStaticFiles();
 
 app.Run();
