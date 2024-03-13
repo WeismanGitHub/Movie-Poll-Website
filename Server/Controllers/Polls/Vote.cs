@@ -31,7 +31,8 @@ public class VoteController : ControllerBase
         }
     }
 
-    [HttpPost("{id}/vote", Name = "Vote")]
+    [HttpPost("{Id:guid}/Vote", Name = "Vote")]
+    [Tags("Polls")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

@@ -8,8 +8,9 @@ namespace Server.Controllers;
 [Route("API/TMDb")]
 public class SearchController : ControllerBase
 {
-    [HttpGet("search", Name = "SearchMovie")]
+    [HttpGet("Search", Name = "SearchMovie")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [Tags("TMDb")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> SearchMovie(

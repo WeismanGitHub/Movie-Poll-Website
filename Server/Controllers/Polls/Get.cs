@@ -35,7 +35,8 @@ public class GetController : ControllerBase
         public string? release_date { get; set; }
     }
 
-    [HttpGet("{id}", Name = "GetPoll")]
+    [HttpGet("{Id:guid}", Name = "GetPoll")]
+    [Tags("Polls")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

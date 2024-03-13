@@ -6,7 +6,9 @@ namespace Server.Controllers;
 [Route("API/Discord")]
 public class GetAccessTokenController : ControllerBase
 {
-    [HttpGet("token", Name = "GetAccessToken")]
+    [HttpGet("Token", Name = "GetAccessToken")]
+    [Produces<string>]
+    [Tags("Discord")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
