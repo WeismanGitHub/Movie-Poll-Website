@@ -9,8 +9,7 @@ export default function Home() {
                 style={{ height: '75vh' }}
             >
                 <h1>
-                    Easily create movie polls and seamlessly integrate them with Discord, allowing only server
-                    members to participate.
+                    Effortlessly create movie polls and seamlessly integrate them with Discord, restricting polls to server members.
                 </h1>
             </div>
         </>
