@@ -2,6 +2,7 @@ using Microsoft.OpenApi.Models;
 using Server;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddEnvironmentVariables();
 Configuration config = builder.Configuration.Get<Configuration>()!;
 
 builder.Services.AddControllers();
