@@ -29,16 +29,20 @@ export default function Auth() {
             return;
         }
 
-        if (
-            code &&
-            state &&
-            localStorage.getItem('auth-state') == atob(decodeURIComponent(state)) &&
-            redirect
-        ) {
-            navigate(`/${redirect}?code=${code}`);
-        } else {
-            localStorage.setItem('auth-state', randomString);
-            localStorage.setItem('redirect', redirect);
+        try {
+            if (
+                code &&
+                state &&
+                localStorage.getItem('auth-state') == atob(decodeURIComponent(state)) &&
+                redirect
+            ) {
+                navigate(`/${redirect}?code=${code}`);
+            } else {
+                localStorage.setItem('auth-state', randomString);
+                localStorage.setItem('redirect', redirect);
+            }
+        } catch(err) {
+            window.location.reload()
         }
     }, []);
 
