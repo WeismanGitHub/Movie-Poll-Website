@@ -41,17 +41,14 @@ export default function NavBar() {
                         id="navbarNav"
                     >
                         <ul className="navbar-nav d-flex justify-content-center align-items-center">
-                            <li className={`nav-item nav-link active w-75 m-1 ${isNavOpen ? ' mb-2' : ''}`}>
-                                <a href="/create" style={{ textDecoration: 'none', color: 'white' }}>
+                            <li className={`m-1 w-75 ${isNavOpen ? ' mb-2' : ''}`}>
+                                <a className="nav-item nav-link active w-100" href="/create" style={{ color: 'white' }}>
                                     Create
                                 </a>
                             </li>
-                            <li className={`nav-item nav-link active w-75 m-1 ${isNavOpen ? ' mb-2' : ''}`}>
-                                <a
-                                    href="https://github.com/WeismanGitHub/Movie-Poll-Website"
-                                    style={{ textDecoration: 'none', color: 'white' }}
-                                >
-                                    GitHub
+                            <li className={`m-1 w-75 ${isNavOpen ? ' mb-2' : ''}`}>
+                                <a className="nav-item nav-link active w-100" href="https://github.com/WeismanGitHub/Movie-Poll-Website" style={{ color: 'white' }}>
+                                    Github
                                 </a>
                             </li>
                         </ul>
