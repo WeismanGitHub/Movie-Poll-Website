@@ -38,4 +38,7 @@ app.MapFallbackToFile("/index.html");
 app.MapControllers();
 app.UseStaticFiles();
 
+var dbContext = app.Services.GetRequiredService<MoviePollsContext>();
+dbContext.Database.EnsureCreated();
+
 app.Run();
