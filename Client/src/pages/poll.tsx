@@ -112,8 +112,8 @@ export default function Poll() {
                         bg={'success'}
                     >
                         <Toast.Header>
-                            <strong className="me-auto">Voted Successfully!</strong>
-                            <Toast.Body></Toast.Body>
+                            <strong className="me-auto">Success!</strong>
+                            <Toast.Body>You voted</Toast.Body>
                         </Toast.Header>
                     </Toast>
                 </ToastContainer>
