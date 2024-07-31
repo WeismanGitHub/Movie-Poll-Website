@@ -8,9 +8,11 @@ export default function Home() {
                 className="container d-flex justify-content-center align-items-center text-center fs-4 p-2 flex-column"
                 style={{ height: '75vh' }}
             >
-                <h1>
-                    Set up movie polls where you can limit voting to members of a particular Discord server. 
-                </h1>
+                <h4>
+                    Create a poll where users vote for a movie from a pre-defined list. Additionally, set an
+                    expiration date and restrict it to members of a specific Discord server.
+                </h4>
+                <img src=""></img>
             </div>
         </>
     );
